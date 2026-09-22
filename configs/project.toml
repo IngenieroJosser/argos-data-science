@@ -1,0 +1,13 @@
+[profiling]
+csv_sample_size = 100000
+example_rows = 2000
+compute_sha256 = false
+
+[target]
+name = "y_addition_180d"
+horizon_days = 180
+candidate_t0_dataset = "contracts"
+candidate_t0_column = "fecha_de_firma"
+contract_id_column = "id_contrato"
+addition_contract_id_column = "id_contrato"
+addition_event_column = "fecharegistro"

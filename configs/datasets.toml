@@ -1,0 +1,97 @@
+# Registry of the seven SECOP II sources used by ARGOS.
+# match_tokens are normalized (lowercase, no accents/punctuation) and are used
+# only to discover the local snapshot file in data/bronze without hard-coding
+# the YYYYMMDD suffix.
+
+[datasets.processes]
+source_id = "p6dx-8zbt"
+name = "SECOP II - Procesos de Contratación"
+match_tokens = ["procesos", "contratacion"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/SECOP-II-Procesos-de-Contrataci-n/p6dx-8zbt/about_data"
+candidate_keys = [["id_del_proceso"], ["referencia_del_proceso"], ["id_del_portafolio"]]
+
+[datasets.contracts]
+source_id = "jbjy-vk9h"
+name = "SECOP II - Contratos Electrónicos"
+match_tokens = ["contratos", "electronicos"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/SECOP-II-Contratos-Electr-nicos/jbjy-vk9h/about_data"
+candidate_keys = [["id_contrato"], ["referencia_del_contrato"]]
+
+[datasets.bidders]
+source_id = "hgi6-6wh3"
+name = "Proponentes por Proceso SECOP II"
+match_tokens = ["proponentes", "proceso"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/Proponentes-por-Proceso-SECOP-II/hgi6-6wh3/about_data"
+candidate_keys = [["id_procedimiento"], ["id_procedimiento", "id_proveedor"], ["id_procedimiento", "codigo_proveedor"]]
+
+[datasets.suppliers]
+source_id = "qmzu-gj57"
+name = "SECOP II - Proveedores Registrados"
+match_tokens = ["proveedores", "registrados"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/SECOP-II-Proveedores-Registrados/qmzu-gj57/about_data"
+candidate_keys = [["codigo"], ["nit"]]
+
+[datasets.additions]
+source_id = "cb9c-h8sn"
+name = "SECOP II - Adiciones"
+match_tokens = ["adiciones"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/SECOP-II-Adiciones/cb9c-h8sn/about_data"
+candidate_keys = [["identificador"], ["id_contrato", "fecharegistro", "tipo"]]
+
+[datasets.sanctions]
+source_id = "it5q-hg94"
+name = "SECOP II - Multas y Sanciones"
+match_tokens = ["multas", "sanciones"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/SECOPII-Multas-y-Sanciones/it5q-hg94/about_data"
+candidate_keys = [["id_contrato"], ["id_sancion"]]
+
+[datasets.payments]
+source_id = "uymx-8p3j"
+name = "SECOP II - Plan de pagos"
+match_tokens = ["plan", "pagos"]
+source_url = "https://www.datos.gov.co/Estad-sticas-Nacionales/SECOP-II-Plan-de-pagos/uymx-8p3j/about_data"
+candidate_keys = [["id_contrato"], ["id_contrato", "numero_de_factura"]]
+
+# Join hypotheses. They are intentionally hypotheses: notebook 03 measures
+# coverage, multiplicity and expansion before any relationship is accepted.
+[relationships.contracts_processes]
+left_dataset = "contracts"
+right_dataset = "processes"
+left_keys = ["proceso_de_compra"]
+right_keys = ["id_del_proceso"]
+
+[relationships.contracts_suppliers]
+left_dataset = "contracts"
+right_dataset = "suppliers"
+left_keys = ["codigo_proveedor"]
+right_keys = ["codigo"]
+
+[relationships.bidders_processes]
+left_dataset = "bidders"
+right_dataset = "processes"
+left_keys = ["id_procedimiento"]
+right_keys = ["id_del_proceso"]
+
+[relationships.bidders_suppliers]
+left_dataset = "bidders"
+right_dataset = "suppliers"
+left_keys = ["id_proveedor"]
+right_keys = ["codigo"]
+
+[relationships.additions_contracts]
+left_dataset = "additions"
+right_dataset = "contracts"
+left_keys = ["id_contrato"]
+right_keys = ["id_contrato"]
+
+[relationships.payments_contracts]
+left_dataset = "payments"
+right_dataset = "contracts"
+left_keys = ["id_contrato"]
+right_keys = ["id_contrato"]
+
+[relationships.sanctions_contracts]
+left_dataset = "sanctions"
+right_dataset = "contracts"
+left_keys = ["id_contrato"]
+right_keys = ["id_contrato"]
