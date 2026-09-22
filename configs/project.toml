@@ -3,6 +3,13 @@ csv_sample_size = 100000
 example_rows = 2000
 compute_sha256 = false
 
+[temporal]
+# SECOP/Socrata CSV snapshots observed in ARGOS predominantly use MM/DD/YYYY.
+# ISO is always attempted first; DMY is retained only as an explicit fallback.
+date_order = "mdy"
+plausible_year_min = 2000
+plausible_year_max = 2100
+
 [target]
 name = "y_addition_180d"
 horizon_days = 180
@@ -11,3 +18,30 @@ candidate_t0_column = "fecha_de_firma"
 contract_id_column = "id_contrato"
 addition_contract_id_column = "id_contrato"
 addition_event_column = "fecharegistro"
+addition_type_column = "tipo"
+# Empty means every row in the dedicated Adiciones source is in scope for the
+# feasibility target. Narrowing to specific Tipo values requires an explicit
+# target-spec decision after profiling their semantics.
+included_addition_types = []
+
+[m1_gate]
+required_dataset_count = 7
+relationship_candidate_min_coverage = 0.90
+contracts_suppliers_min_coverage = 0.90
+additions_contracts_min_coverage = 0.99
+bidders_processes_min_coverage = 0.95
+bidders_suppliers_min_coverage = 0.90
+t0_min_raw_coverage = 0.85
+t0_min_parse_success_nonnull = 0.98
+t0_min_plausible_rate_parsed = 0.995
+addition_event_min_parse_success_nonnull = 0.99
+target_min_eligible = 100000
+target_min_positives = 1000
+target_prevalence_min = 0.005
+target_prevalence_max = 0.80
+
+[m1_scope]
+# These sources remain inventoried/profiled, but failures in them do not block
+# the first addition-risk Silver layer. They become blocking when their own
+# targets/features are promoted into scope.
+deferred_datasets = ["payments", "sanctions"]

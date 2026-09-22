@@ -1,7 +1,10 @@
 [project]
 name = "argos-code"
 version = "0.1.0"
+description = "Plataforma de inteligencia analítica para priorización de riesgo en contratación pública"
+readme = "README.md"
 requires-python = ">=3.12"
+
 dependencies = [
     "duckdb>=1.5.5",
     "ipykernel>=7.3.0",
@@ -29,6 +32,10 @@ dev = [
     "ruff>=0.16.8",
 ]
 
+# ---------------------------------------------------------------------------
+# Build / packaging
+# ---------------------------------------------------------------------------
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -36,14 +43,51 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/argos"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/argos",
+    "README.md",
+    "pyproject.toml",
+]
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP"]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "I",   # import sorting
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra -q"
+
+# ---------------------------------------------------------------------------
+# MyPy
+# ---------------------------------------------------------------------------
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true

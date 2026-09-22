@@ -358,7 +358,8 @@ argos-code/
 │   ├── 03_relationships_and_join_coverage.ipynb
 │   ├── 04_temporal_audit.ipynb
 │   ├── 05_data_quality_audit.ipynb
-│   └── 06_target_feasibility.ipynb
+│   ├── 06_target_feasibility.ipynb
+│   └── 07_m1_gate.ipynb
 │
 ├── pipelines/
 │
@@ -674,6 +675,31 @@ reports/profiling/target_feasibility_by_year.parquet
 
 ---
 
+## `07_m1_gate.ipynb`
+
+### Objetivo
+
+Responder de forma reproducible:
+
+> ¿La evidencia de M1 es suficiente para iniciar Silver?
+
+El gate consume los reportes de `00`–`06` y valida criterios bloqueantes sobre inventario, grain, relaciones, tiempo, target y leakage. No cierra M1 simplemente porque los notebooks hayan ejecutado.
+
+Salidas:
+
+```text
+reports/profiling/m1_gate_report.parquet
+docs/decisions/M1_GATE.md
+```
+
+La transición a Silver está autorizada únicamente cuando imprime:
+
+```text
+M1 ✅ CLOSED
+```
+
+---
+
 # 10. Arquitectura del código
 
 Los notebooks **no contienen la lógica principal del proyecto**.
@@ -867,6 +893,7 @@ Ejecuta los notebooks desde la raíz del repositorio y en este orden:
 05_data_quality_audit.ipynb
         ↓
 06_target_feasibility.ipynb
+07_m1_gate.ipynb
 ```
 
 > Algunos análisis realizan scans completos sobre CSV de varios GB. Esto es esperado durante la primera auditoría de gobernanza y puede ser intensivo en I/O.
@@ -1381,3 +1408,8 @@ impacto en la decisión
 ```
 
 antes que complejidad técnica.
+
+
+## M1 automated gate (current implementation)
+
+After `00`–`06`, run `07_m1_gate.ipynb`. It persists the auditable gate report and only prints `M1 ✅ CLOSED` when every blocking criterion in `configs/project.toml` passes. `payments` and `sanctions` are explicitly deferred for the first addition-risk V1; they remain visible in the quality audit but cannot enter modeling until their own gates are resolved.

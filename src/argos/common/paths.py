@@ -1,12 +1,13 @@
-\
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ProjectPaths:
+    """Canonical filesystem locations used by ARGOS."""
+
     root: Path
 
     @property
@@ -35,19 +36,50 @@ class ProjectPaths:
 
     @classmethod
     def discover(cls, start: Path | None = None) -> "ProjectPaths":
-        current = (start or Path.cwd()).resolve()
-        for candidate in [current, *current.parents]:
-            if (candidate / "pyproject.toml").exists():
-                return cls(candidate)
+        """Discover the repository root from cwd or the installed package path.
+
+        Jupyter kernels can retain a working directory that has been replaced on
+        disk. In that state ``Path.cwd()`` raises ``FileNotFoundError``. Falling
+        back to this module's location keeps project discovery deterministic.
+        """
+        starting_points: list[Path] = []
+
+        if start is not None:
+            starting_points.append(Path(start).expanduser().resolve(strict=False))
+        else:
+            try:
+                starting_points.append(Path.cwd().resolve())
+            except FileNotFoundError:
+                pass
+
+        package_project_root = Path(__file__).resolve().parents[3]
+        if package_project_root not in starting_points:
+            starting_points.append(package_project_root)
+
+        searched: list[Path] = []
+        for starting_point in starting_points:
+            for candidate in (starting_point, *starting_point.parents):
+                if candidate in searched:
+                    continue
+                searched.append(candidate)
+                if (candidate / "pyproject.toml").is_file():
+                    return cls(candidate)
+
+        searched_text = "\n".join(f"  - {path}" for path in searched)
         raise FileNotFoundError(
-            "Could not locate project root. Expected a parent directory containing pyproject.toml."
+            "Could not locate ARGOS project root. Expected pyproject.toml under:\n"
+            f"{searched_text}"
         )
 
     def ensure_runtime_dirs(self) -> None:
         for path in [
+            self.silver,
+            self.gold,
             self.reports / "profiling",
             self.reports / "quality",
             self.reports / "figures",
             self.reports / "experiments",
+            self.root / ".cache" / "duckdb",
+            self.root / "artifacts" / "models",
         ]:
             path.mkdir(parents=True, exist_ok=True)

@@ -1,4 +1,3 @@
-\
 from __future__ import annotations
 
 from pathlib import Path
@@ -22,48 +21,61 @@ def audit_money_columns(
     It does not label extreme values as errors; outlier semantics require domain review.
     """
     con = connect(temp_directory=temp_directory)
-    source = csv_source(path, sample_size=sample_size, all_varchar=True)
-    schema = con.execute(f"DESCRIBE SELECT * FROM {source}").fetchdf()
-    monetary = [
-        c for c in schema["column_name"].tolist()
-        if any(token in normalize_name(c) for token in ["valor", "monto", "saldo", "presupuesto"])
-    ]
-    if not monetary:
-        return pd.DataFrame(columns=["dataset", "column"])
 
-    expressions = ["COUNT(*) AS __rows"]
-    for idx, column in enumerate(monetary):
-        q = quote_identifier(column)
-        numeric = f"TRY_CAST({q} AS DOUBLE)"
-        expressions += [
-            f"COUNT(*) FILTER (WHERE {q} IS NOT NULL) AS c{idx}__nonnull",
-            f"COUNT(*) FILTER (WHERE {q} IS NOT NULL AND {numeric} IS NOT NULL) AS c{idx}__parsed",
-            f"COUNT(*) FILTER (WHERE {numeric} < 0) AS c{idx}__negative",
-            f"COUNT(*) FILTER (WHERE {numeric} = 0) AS c{idx}__zero",
-            f"MIN({numeric}) AS c{idx}__min",
-            f"MAX({numeric}) AS c{idx}__max",
+    try:
+        source = csv_source(path, sample_size=sample_size, all_varchar=True)
+        schema = con.execute(f"DESCRIBE SELECT * FROM {source}").fetchdf()
+        monetary = [
+            column
+            for column in schema["column_name"].tolist()
+            if any(
+                token in normalize_name(column)
+                for token in ["valor", "monto", "saldo", "presupuesto"]
+            )
         ]
-    result = con.execute(f"SELECT {', '.join(expressions)} FROM {source}").fetchdf().iloc[0]
-    rows = int(result["__rows"])
-    records = []
-    for idx, column in enumerate(monetary):
-        nonnull = int(result[f"c{idx}__nonnull"])
-        parsed = int(result[f"c{idx}__parsed"])
-        records.append(
-            {
-                "dataset": dataset,
-                "column": column,
-                "normalized_column": normalize_name(column),
-                "row_count": rows,
-                "nonnull_count": nonnull,
-                "numeric_parse_rate_nonnull": parsed / nonnull if nonnull else None,
-                "negative_count": int(result[f"c{idx}__negative"]),
-                "zero_count": int(result[f"c{idx}__zero"]),
-                "min_value": result[f"c{idx}__min"],
-                "max_value": result[f"c{idx}__max"],
-            }
-        )
-    return pd.DataFrame.from_records(records)
+        if not monetary:
+            return pd.DataFrame(columns=["dataset", "column"])
+
+        expressions = ["COUNT(*) AS __rows"]
+        for idx, column in enumerate(monetary):
+            quoted = quote_identifier(column)
+            numeric = f"TRY_CAST({quoted} AS DOUBLE)"
+            expressions += [
+                f"COUNT(*) FILTER (WHERE {quoted} IS NOT NULL) AS c{idx}__nonnull",
+                f"COUNT(*) FILTER (WHERE {quoted} IS NOT NULL AND {numeric} IS NOT NULL) "
+                f"AS c{idx}__parsed",
+                f"COUNT(*) FILTER (WHERE {numeric} < 0) AS c{idx}__negative",
+                f"COUNT(*) FILTER (WHERE {numeric} = 0) AS c{idx}__zero",
+                f"MIN({numeric}) AS c{idx}__min",
+                f"MAX({numeric}) AS c{idx}__max",
+            ]
+
+        result = con.execute(
+            f"SELECT {', '.join(expressions)} FROM {source}"
+        ).fetchdf().iloc[0]
+        rows = int(result["__rows"])
+        records: list[dict[str, object]] = []
+
+        for idx, column in enumerate(monetary):
+            nonnull = int(result[f"c{idx}__nonnull"])
+            parsed = int(result[f"c{idx}__parsed"])
+            records.append(
+                {
+                    "dataset": dataset,
+                    "column": column,
+                    "normalized_column": normalize_name(column),
+                    "row_count": rows,
+                    "nonnull_count": nonnull,
+                    "numeric_parse_rate_nonnull": parsed / nonnull if nonnull else None,
+                    "negative_count": int(result[f"c{idx}__negative"]),
+                    "zero_count": int(result[f"c{idx}__zero"]),
+                    "min_value": result[f"c{idx}__min"],
+                    "max_value": result[f"c{idx}__max"],
+                }
+            )
+        return pd.DataFrame.from_records(records)
+    finally:
+        con.close()
 
 
 def summarize_quality(
@@ -110,6 +122,17 @@ def summarize_quality(
                     "metric": rate,
                     "threshold": 0.98,
                     "action": "inspect_formats_and_invalid_values",
+                })
+            plausible = getattr(row, "plausible_rate_parsed", None)
+            if plausible is not None and plausible < 0.995:
+                issues.append({
+                    "dataset": row.dataset,
+                    "scope": row.column,
+                    "rule": "date_calendar_plausibility",
+                    "severity": "warning",
+                    "metric": plausible,
+                    "threshold": 0.995,
+                    "action": "inspect_out_of_range_years_before_silver_typing",
                 })
 
     if not key_profile.empty:

@@ -54,11 +54,16 @@ candidate_keys = [["id_contrato"], ["id_contrato", "numero_de_factura"]]
 
 # Join hypotheses. They are intentionally hypotheses: notebook 03 measures
 # coverage, multiplicity and expansion before any relationship is accepted.
-[relationships.contracts_processes]
+# contracts -> processes is resolved empirically from the candidate group below.
+[relationship_candidates.contracts_processes]
 left_dataset = "contracts"
 right_dataset = "processes"
 left_keys = ["proceso_de_compra"]
-right_keys = ["id_del_proceso"]
+right_key_candidates = [
+    ["id_del_proceso"],
+    ["id_del_portafolio"],
+    ["referencia_del_proceso"],
+]
 
 [relationships.contracts_suppliers]
 left_dataset = "contracts"
@@ -75,7 +80,7 @@ right_keys = ["id_del_proceso"]
 [relationships.bidders_suppliers]
 left_dataset = "bidders"
 right_dataset = "suppliers"
-left_keys = ["id_proveedor"]
+left_keys = ["codigo_proveedor"]
 right_keys = ["codigo"]
 
 [relationships.additions_contracts]
