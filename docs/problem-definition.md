@@ -3,8 +3,8 @@
 > **Documento de definición del problema**
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> Versión: 1.4  
-> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ✅ CLOSED · M6 ▶ READY
+> Versión: 1.5  
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ✅ CLOSED · M6 ✅ CLOSED
 
 ---
 
@@ -644,4 +644,15 @@ M5 cerró con 16/16 checks bloqueantes y conserva ARGOS V1 como benchmark histó
 
 El fresh OOT 2026 obtuvo PR-AUC 0.053274 y Lift@1% 6.257x sobre una prevalencia de 1.3713%. Existe generalización útil, pero con degradación frente a TEST 2025 y con cobertura parcial del año.
 
-La siguiente fase, M6, corresponde a productionization/MLOps: operacionalizar pipelines, serving, registry, observabilidad, monitoreo, rollback y auditoría. ARGOS continúa siendo una ayuda para priorización y revisión humana; no se redefine como sistema autónomo de sanción, elegibilidad o decisión legal.
+La fase activa, M6, corresponde a productionization/MLOps: operacionalizar pipelines, serving, registry, observabilidad, monitoreo, rollback y auditoría. ARGOS continúa siendo una ayuda para priorización y revisión humana; no se redefine como sistema autónomo de sanción, elegibilidad o decisión legal.
+
+
+## 22. Estado operacional V1 tras M6
+
+M6 cerró la productivización controlada de ARGOS V1 con un contrato batch-first, shadow y human-in-the-loop. El status de deployment es `OPERATIONALLY_READY_PROMOTION_BLOCKED`.
+
+La plataforma demuestra scoring reproducible, data contracts, registry y lineage por hash, monitoreo ejecutable, cola de revisión humana, audit log encadenado y rollback. Sin embargo, el replay operacional produjo 6 alertas de drift de alta severidad y el deployment conserva `promotion_blocked=true`.
+
+Por tanto, el cierre de M6 **no** modifica el problema de decisión original: ARGOS prioriza contratos para revisión analítica; no determina corrupción, fraude, culpabilidad, sanciones o elegibilidad de forma autónoma.
+
+Cualquier nueva versión del modelo deberá abrir una nueva lineage y evaluarse con evidencia temporal prospectiva. TEST 2025 y OOT 2026 permanecen consumidos para ARGOS V1.

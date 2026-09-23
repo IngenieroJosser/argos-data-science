@@ -24,6 +24,9 @@ dependencies = [
     "tqdm>=4.70.1",
 ]
 
+[project.scripts]
+argos-production = "argos.production.cli:main"
+
 [dependency-groups]
 dev = [
     "mypy>=2.3.1",

@@ -8,7 +8,7 @@ M2 — Silver / Canonical Data Model                    ✅ CLOSED
 M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED
 M4 — Modeling & Evaluation                            ✅ CLOSED
 M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
-M6 — Productionization & MLOps                         ▶ READY
+M6 — Productionization & MLOps                        ✅ CLOSED — 16/16
 ```
 
 La autoridad operativa de cada milestone es su gate persistido. Los documentos de inicio/readiness se conservan como evidencia histórica y no sustituyen las decisiones de cierre posteriores.
@@ -38,7 +38,15 @@ La autoridad operativa de cada milestone es su gate persistido. Los documentos d
 | `decisions/M5_CLOSURE_REVIEW_2026-09-23.md` | revisión senior del cierre, limitaciones y deuda transportada |
 | `models/ARGOS_V1_ROBUSTNESS_CARD.md` | evidencia empírica de robustez del V1 congelado |
 | `monitoring/ARGOS_V1_MONITORING_SPEC.md` | contrato de monitoreo que debe operacionalizar M6 |
-| `M6_HANDOFF.md` | contrato de entrada a Productionization & MLOps |
+| `M6_HANDOFF.md` | handoff histórico M5→M6, ya consumido |
+| `M6_RUNBOOK.md` | protocolo ejecutado de Productionization & MLOps |
+| `decisions/M6_START_2026-09-23.md` | decisión formal de inicio de M6 |
+| `decisions/M6_CODE_READINESS_2026-09-23.md` | alcance y controles implementados antes de ejecutar 50–57 |
+| `data-dictionary/m6_production_catalog.md` | catálogo de registry, scoring, monitoring, audit y review queue |
+| `decisions/M6_GATE.md` | decisión formal reconciliada de cierre M6 — 16/16 |
+| `decisions/M6_CLOSURE_REVIEW_2026-09-23.md` | revisión senior, reconciliación de evidencia y estado operacional final |
+| `operations/ARGOS_V1_OPERATIONAL_RUNBOOK.md` | runbook operativo para shadow/human-review |
+| `POST_M6_OPERATIONS.md` | reglas posteriores al cierre: monitoreo prospectivo y gobernanza de nueva evidencia |
 
 ## Evidencia histórica preservada
 
@@ -75,13 +83,15 @@ Recall@1%       25.2754%
 Precision@1%    26.4155%
 ```
 
-## Regla de precedencia y siguiente fase
+## Regla de precedencia y estado posterior
 
-`docs/decisions/M5_GATE.md` es la autoridad computable del cierre M5. `docs/decisions/M5_CLOSURE_REVIEW_2026-09-23.md` documenta la interpretación profesional de la evidencia y las restricciones que pasan a M6. TEST 2025 y el fresh OOT 2026 quedan consumidos para ARGOS V1.
+`docs/decisions/M6_GATE.md` es la decisión vigente del cierre M6 y `docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md` documenta la reconciliación senior de la evidencia final. La decisión previa `M6 ❌ OPEN` se conserva como artefacto histórico pre-reconciliación. TEST 2025 y OOT 2026 permanecen consumidos para ARGOS V1.
 
-## M5 cerrado / M6 preparado
+No se declara un M7 por defecto. El estado posterior está definido en `POST_M6_OPERATIONS.md`: shadow/human-review, monitoreo prospectivo y nueva evidencia antes de cualquier cambio de lineage o promoción.
 
-M5 cerró con **16/16 checks bloqueantes**. El V1 conserva lineage intacto, cuenta con backtesting temporal, explicabilidad, incertidumbre, drift/calibration monitoring, revalidación de familias y fresh OOT posterior a 2025.
+## M6 cerrado / operación shadow controlada
 
-El cierre no autoriza por sí solo un despliegue productivo. M6 debe convertir el contrato de monitoreo y gobernanza en una operación reproducible, observable, reversible y human-in-the-loop. La entrada está definida en `docs/M6_HANDOFF.md`.
+M5 cerró con **16/16 checks bloqueantes** y M6 cerró la operacionalización controlada con **16/16 condiciones del gate satisfechas**. ARGOS V1 dispone de runtime/registry reproducible, data contract, scoring batch idempotente, monitoring ejecutable, audit hash-chain, rollback y cola de revisión humana.
+
+El status final es `OPERATIONALLY_READY_PROMOTION_BLOCKED`: la infraestructura está lista para operación shadow/human-review, pero las 6 alertas `high` del replay mantienen `promotion_blocked=true`. Esto no es un fallo del milestone; es el mecanismo de gobernanza funcionando como fue diseñado. No existe autorización de promoción automática ni de decisiones jurídicas autónomas.
 

@@ -1,9 +1,11 @@
 # ARGOS — Handoff M5 → M6
 
+> Este handoff fue aceptado y consumido por M6. El milestone está cerrado; la operación vigente está gobernada por `M6_RUNBOOK.md`, `configs/production.toml` y `docs/operations/`.
+
 > **Origen:** M5 — Advanced Data Science & Robustness  
 > **Estado de origen:** ✅ CLOSED — 16/16 checks bloqueantes  
 > **Destino:** M6 — Productionization & MLOps  
-> **Estado de destino:** ▶ READY  
+> **Estado de destino:** ✅ CLOSED — 16/16 · `OPERATIONALLY_READY_PROMOTION_BLOCKED`  
 > **Sistema de referencia:** ARGOS V1 congelado (`hist_gradient_boosting + isotonic`)
 
 ## 1. Propósito

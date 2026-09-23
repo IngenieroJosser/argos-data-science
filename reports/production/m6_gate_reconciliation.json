@@ -1,0 +1,30 @@
+{
+  "milestone": "M6",
+  "schema_version": "m6-production-v1",
+  "decision": "CLOSED",
+  "deployment_status": "OPERATIONALLY_READY_PROMOTION_BLOCKED",
+  "blocking_checks": 16,
+  "blocking_passed": 16,
+  "failed_checks": [],
+  "component_checks": {
+    "50": {"blocking": 5, "passed": 5},
+    "51": {"blocking": 5, "passed": 5},
+    "52": {"blocking": 4, "passed": 4},
+    "53": {"blocking": 4, "passed": 4},
+    "54": {"blocking": 4, "passed": 4},
+    "55": {"blocking": 4, "passed": 4},
+    "56": {"blocking": 6, "passed": 6}
+  },
+  "operational_evidence": {
+    "scoring_rows": 529054,
+    "review_rows": 5291,
+    "monitoring_alerts": 14,
+    "high_alerts": 6,
+    "score_psi": 1.0891642323302304,
+    "audit_chain_events": 16,
+    "promotion_blocked": true,
+    "production_promotion_authorized": false,
+    "human_review_required": true
+  },
+  "provenance": "Reconciled from current post-rerun component notebooks, manifests, registry, contract hashes, deployment state and audit chain. See docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md."
+}

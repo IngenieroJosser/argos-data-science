@@ -1,0 +1,90 @@
+# M6 Productionization & MLOps contract.
+# ARGOS V1 is operationalized batch-first in SHADOW / HUMAN-REVIEW mode.
+# This configuration does not authorize autonomous legal or enforcement decisions.
+
+[m6]
+schema_version = "m6-production-v1"
+model_version = "argos-v1"
+benchmark_gold_schema = "m3-gold-v1"
+benchmark_model_schema = "m4-model-v1"
+benchmark_robustness_schema = "m5-robustness-v1"
+operating_mode = "shadow"
+scoring_mode = "batch"
+human_review_required = true
+batch_size = 100000
+
+[runtime]
+python_major_minor = "3.12"
+scikit_learn = "1.9.1"
+lockfile = "uv.lock"
+
+[registry]
+selection_manifest = "artifacts/models/m4/selected_model.json"
+model_artifact = "artifacts/models/m4/hist_gradient_boosting.joblib"
+calibrator_artifact = "artifacts/models/m4/selected_calibrator.joblib"
+model_card = "docs/models/ARGOS_V1_MODEL_CARD.md"
+robustness_card = "docs/models/ARGOS_V1_ROBUSTNESS_CARD.md"
+monitoring_spec = "docs/monitoring/ARGOS_V1_MONITORING_SPEC.md"
+registry_record = "artifacts/registry/argos_v1.json"
+allowed_stages = ["candidate", "shadow", "paused", "archived"]
+
+[data_contract]
+feature_registry = "reports/gold/26_feature_registry.parquet"
+id_column = "contract_id"
+t0_column = "t0"
+forbid_target_in_output = true
+reject_duplicate_ids = true
+reject_missing_ids = true
+reject_missing_t0 = true
+contract_artifact = "artifacts/contracts/argos_v1_scoring_contract.json"
+
+[scoring]
+operational_review_fraction = 0.01
+tie_break = ["score_desc", "raw_score_desc", "contract_id_asc"]
+output_root = "data/production/scored_batches"
+queue_root = "data/production/review_queues"
+
+[monitoring]
+reference_matrix = "data/gold/ml/argos_v1.parquet"
+reference_start = "2023-01-01"
+reference_end = "2023-12-31"
+reference_sample_rows = 100000
+numeric_bins = 10
+numeric_feature_psi_warning = 0.10
+numeric_feature_psi_high = 0.25
+categorical_feature_tvd_warning = 0.10
+categorical_feature_tvd_high = 0.25
+score_psi_warning = 0.10
+score_psi_high = 0.25
+feature_missingness_absolute_delta_warning = 0.05
+pause_on_high_alert = true
+
+[audit]
+log_path = "artifacts/audit/production_events.jsonl"
+hash_chain = true
+
+[deployment]
+default_stage = "candidate"
+shadow_stage = "shadow"
+allow_production_promotion = false
+rollback_target = "candidate"
+state_path = "artifacts/registry/deployment_state.json"
+
+[security]
+pii_forbidden_in_scoring_output = true
+sensitive_columns = [
+  "correo",
+  "direccion",
+  "telefono",
+  "numero_de_cuenta",
+  "identificacion_representante_legal",
+  "numero_doc_representante_legal",
+]
+
+[acceptance]
+min_required_feature_count = 41
+max_registry_hash_mismatches = 0
+require_idempotent_batch_scoring = true
+require_hash_chained_audit = true
+require_rollback_drill = true
+require_human_review_queue = true

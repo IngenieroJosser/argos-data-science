@@ -1,0 +1,38 @@
+# ARGOS Docker build context policy
+.git
+.github
+.venv
+.cache
+.pytest_cache
+.mypy_cache
+.ruff_cache
+__pycache__
+*.py[cod]
+*.ipynb
+notebooks/
+tests/
+data/bronze/
+data/silver/
+data/gold/
+data/m5/
+data/production/
+artifacts/audit/
+artifacts/manifests/
+reports/profiling/
+reports/quality/
+reports/figures/
+reports/experiments/
+reports/silver/
+reports/modeling/
+reports/robustness/
+reports/production/
+.env
+.env.*
+.DS_Store
+*.log
+
+# Intentionally retained in build context:
+# - artifacts/models/m4/
+# - reports/gold/26_feature_registry.parquet
+# - docs/models/
+# - docs/monitoring/

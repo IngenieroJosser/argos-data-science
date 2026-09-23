@@ -1,0 +1,45 @@
+name: ARGOS CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: argos-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Sync locked environment
+        run: uv sync --frozen --all-groups
+      - name: Compile Python sources
+        run: uv run python -m compileall -q src scripts pipelines
+      - name: Unit tests
+        run: uv run pytest tests/unit -q
+
+  container-smoke:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build production image
+        run: docker build --tag argos-production:ci .
+      - name: Smoke production CLI
+        run: docker run --rm argos-production:ci --help

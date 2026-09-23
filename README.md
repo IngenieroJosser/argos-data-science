@@ -21,7 +21,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [6. Arquitectura de datos](#6-arquitectura-de-datos)
 - [7. Estructura del repositorio](#7-estructura-del-repositorio)
 - [8. Estado actual del proyecto](#8-estado-actual-del-proyecto)
-- [9. Notebooks y gates de M1–M5](#9-notebooks-y-gates-de-m1m5)
+- [9. Notebooks y gates de M1–M6](#9-notebooks-y-gates-de-m1m6)
 - [10. Arquitectura del código](#10-arquitectura-del-código)
 - [11. Configuración](#11-configuración)
 - [12. Instalación](#12-instalación)
@@ -353,14 +353,16 @@ argos-code/
 │   ├── silver.toml
 │   ├── gold.toml
 │   ├── modeling.toml
-│   └── robustness.toml
+│   ├── robustness.toml
+│   └── production.toml
 │
 ├── data/
 │   ├── bronze/
 │   ├── silver/
 │   ├── gold/
 │   ├── modeling/
-│   └── robustness/
+│   ├── robustness/
+│   └── production/
 │
 ├── docs/
 │   ├── problem-definition.md
@@ -373,6 +375,10 @@ argos-code/
 │   ├── M4_RUNBOOK.md
 │   ├── M5_HANDOFF.md
 │   ├── M5_RUNBOOK.md
+│   ├── M6_HANDOFF.md
+│   ├── M6_RUNBOOK.md
+│   ├── POST_M6_OPERATIONS.md
+│   ├── operations/
 │   ├── README.md
 │   ├── data-dictionary/
 │   ├── decisions/
@@ -418,13 +424,22 @@ argos-code/
 │   ├── 44_feature_family_revalidation.ipynb
 │   ├── 45_fresh_oot_2026.ipynb
 │   ├── 46_preproduction_readiness.ipynb
-│   └── 47_m5_gate.ipynb
+│   ├── 47_m5_gate.ipynb
+│   ├── 50_runtime_and_registry.ipynb
+│   ├── 51_data_contracts_and_preflight.ipynb
+│   ├── 52_batch_scoring_and_idempotency.ipynb
+│   ├── 53_monitoring_execution.ipynb
+│   ├── 54_human_review_and_audit.ipynb
+│   ├── 55_shadow_and_rollback_drill.ipynb
+│   ├── 56_operational_readiness.ipynb
+│   └── 57_m6_gate.ipynb
 │
 ├── pipelines/
 │   ├── build_silver_contracts_processes.py
 │   ├── build_gold_m3.py
 │   ├── run_modeling_m4.py
-│   └── run_robustness_m5.py
+│   ├── run_robustness_m5.py
+│   └── run_production_m6.py
 │
 ├── reports/
 │   ├── experiments/
@@ -434,14 +449,19 @@ argos-code/
 │   ├── silver/
 │   ├── gold/
 │   ├── modeling/
-│   └── robustness/
+│   ├── robustness/
+│   └── production/
 │
 ├── scripts/
 │   ├── bootstrap_workspace.sh
 │   ├── evaluate_m1_gate.py
 │   ├── evaluate_m3_gate.py
 │   ├── evaluate_m4_gate.py
-│   └── evaluate_m5_gate.py
+│   ├── evaluate_m5_gate.py
+│   ├── evaluate_m6_gate.py
+│   ├── production_preflight.py
+│   ├── score_batch.py
+│   └── check_notebooks.py
 │
 ├── sql/
 │
@@ -458,6 +478,7 @@ argos-code/
 │       ├── profiling/
 │       ├── quality/
 │       ├── robustness/
+│       ├── production/
 │       ├── silver/
 │       └── targets/
 │
@@ -465,7 +486,9 @@ argos-code/
 │   ├── integration/
 │   └── unit/
 │
-├── .gitignore
+├── .github/workflows/ci.yml
+├── Dockerfile
+├── .dockerignore
 ├── pyproject.toml
 ├── uv.lock
 └── README.md
@@ -475,10 +498,11 @@ argos-code/
 
 # 8. Estado actual del proyecto
 
-ARGOS completó formalmente la validación de robustez de ARGOS V1. El milestone activo queda preparado para:
+ARGOS completó formalmente el ciclo V1 de ingeniería analítica y operacional. M6 cerró la productivización controlada con un contrato batch-first, shadow y human-in-the-loop. El sistema está **operacionalmente listo**, pero la promoción permanece bloqueada por señales de drift de alta severidad:
 
 ```text
-M6 — Productionization & MLOps
+M6 — Productionization & MLOps   ✅ CLOSED — 16/16
+Operational status               OPERATIONALLY_READY_PROMOTION_BLOCKED
 ```
 
 Estado de milestones:
@@ -489,7 +513,7 @@ M2 — Silver / Canonical Data Model                    ✅ CLOSED — 10/10
 M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED — 13/13
 M4 — Modeling & Evaluation                            ✅ CLOSED — 14/14
 M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
-M6 — Productionization & MLOps                         ▶ READY
+M6 — Productionization & MLOps                        ✅ CLOSED — 16/16
 ```
 
 M4 quedó cerrado por `37_m4_gate.ipynb` con **14/14 checks bloqueantes aprobados**. El gate verificó la cadena completa `30`–`36`, presencia de reportes y manifests, consistencia de schema `m4-model-v1`, aislamiento del conjunto TEST, hashes del modelo/calibrador congelados antes de TEST y persistencia de la model card.
@@ -556,9 +580,26 @@ docs/decisions/M5_CLOSURE_REVIEW_2026-09-23.md
 docs/models/ARGOS_V1_ROBUSTNESS_CARD.md
 docs/monitoring/ARGOS_V1_MONITORING_SPEC.md
 docs/M6_HANDOFF.md
+docs/decisions/M6_GATE.md
+docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md
+docs/operations/ARGOS_V1_OPERATIONAL_RUNBOOK.md
 ```
 
-# 9. Notebooks y gates de M1–M5
+### Interpretación profesional del cierre M6
+
+M6 cerró con **16/16 condiciones bloqueantes satisfechas** al reconciliar la evidencia final de `50–56` con el contrato implementado por el gate. El pipeline operacional demostró runtime/registry reproducible, contrato de scoring congelado, scoring batch idempotente, ranking determinista, monitoreo ejecutable, cola Top-K para revisión humana, audit log encadenado por SHA-256 y rollback no destructivo.
+
+El replay operacional materializó **529,054 scores** y una cola del **1% = 5,291 contratos**. Monitoring persistió **14 alertas**, de las cuales **6 son `high`**, y el score PSI fue **1.089164**. Por diseño, esas señales no se silencian: `promotion_blocked=true` y el estado final de M6 es:
+
+```text
+OPERATIONALLY_READY_PROMOTION_BLOCKED
+```
+
+Esto es un cierre correcto del milestone operacional: la plataforma funciona y sus controles impiden promover un modelo cuando la evidencia de drift no lo justifica. No equivale a autorización de decisiones autónomas ni a promoción irrestricta a producción.
+
+El output cacheado anterior de `57_m6_gate.ipynb` quedó desfasado porque se ejecutó antes de los últimos reruns exitosos de componentes. La reconciliación está documentada en `docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md`; la decisión previa se preserva como evidencia histórica.
+
+# 9. Notebooks y gates de M1–M6
 
 Los notebooks deben ejecutarse **en orden**.
 
@@ -963,6 +1004,39 @@ Gate formal de M5: valida `40–46`, lineage, hashes, fresh OOT, documentación 
 
 ---
 
+## `50_runtime_and_registry.ipynb`
+
+Valida M5 como prerequisito, runtime compatible con el modelo serializado, hashes de modelo/calibrador y crea el model registry operacional. **No autoriza promoción automática a producción.**
+
+## `51_data_contracts_and_preflight.ipynb`
+
+Materializa el scoring contract de las 41 features congeladas y ejecuta preflight de schema, grain, `t0` y privacidad sobre un batch inmutable.
+
+## `52_batch_scoring_and_idempotency.ipynb`
+
+Ejecuta scoring batch out-of-core con ARGOS V1. El idempotency key depende de input + modelo + calibrador + contrato y la segunda ejecución debe reutilizar exactamente el mismo batch.
+
+## `53_monitoring_execution.ipynb`
+
+Operationaliza thresholds M5 para feature drift, missingness y score drift. Las alertas `high` bloquean promoción; detectar drift no se transforma artificialmente en un fallo del motor de monitoreo.
+
+## `54_human_review_and_audit.ipynb`
+
+Materializa la cola Top-K para analistas, separa evidencia del modelo de decisiones humanas y valida el audit log encadenado por SHA-256.
+
+## `55_shadow_and_rollback_drill.ipynb`
+
+Prueba de forma no destructiva `candidate → shadow → paused → candidate` y verifica que no exista una transición directa a `production`.
+
+## `56_operational_readiness.ipynb`
+
+Sintetiza evidencia de operación, container/CI, monitoring, audit y runbooks de incident response, human review, retraining y seguridad.
+
+## `57_m6_gate.ipynb`
+
+Gate computable de M6. El cierre valida la plataforma operacional; reporta por separado si el estado es `SHADOW_READY` o `OPERATIONALLY_READY_PROMOTION_BLOCKED`.
+
+
 # 10. Arquitectura del código
 
 Los notebooks **no contienen la lógica principal del proyecto**.
@@ -1024,10 +1098,11 @@ configs/
 ├── silver.toml
 ├── gold.toml
 ├── modeling.toml
-└── robustness.toml
+├── robustness.toml
+└── production.toml
 ```
 
-`datasets.toml` describe fuentes y relaciones candidatas; `silver.toml` y `gold.toml` congelan contratos de datos; `modeling.toml` congela el protocolo M4 antes de TEST; y `robustness.toml` congela el protocolo M5, incluyendo rolling folds, bootstrap, drift thresholds, desempate del ranking y gobernanza del fresh OOT 2026.
+`datasets.toml` describe fuentes y relaciones candidatas; `silver.toml` y `gold.toml` congelan contratos de datos; `modeling.toml` congela el protocolo M4 antes de TEST; `robustness.toml` congela M5; y `production.toml` congela M6: runtime compatible, registry, scoring contract, idempotencia, ranking, monitoring, audit, human review y política de deployment.
 
 El contrato M4 activo durante el experimento fue:
 
@@ -1422,7 +1497,9 @@ docs/monitoring/ARGOS_V1_MONITORING_SPEC.md
 
 ## M6 — Productionization & MLOps
 
-**Estado:** ▶ READY.
+**Estado:** ✅ CLOSED — 16/16 condiciones bloqueantes.
+
+**Deployment status:** `OPERATIONALLY_READY_PROMOTION_BLOCKED`.
 
 M6 corresponde a la **operacionalización controlada** del sistema: pipelines reproducibles, packaging/serving, registry, CI/CD, observabilidad, monitoreo, seguridad, rollback, auditoría y validación de despliegue.
 
@@ -1434,7 +1511,9 @@ modelo → score/ranking → cola priorizada → revisión humana
 
 La automatización puede abarcar ingestión, scoring, monitoreo y generación de colas, pero no conclusiones de corrupción/fraude, sanciones, elegibilidad o decisiones legales automáticas.
 
-Contrato de entrada: `docs/M6_HANDOFF.md`.
+El contrato de entrada `docs/M6_HANDOFF.md` ya fue consumido. El protocolo ejecutado está definido en `docs/M6_RUNBOOK.md` y `configs/production.toml`; la decisión formal vive en `docs/decisions/M6_GATE.md` y la revisión senior en `docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md`.
+
+M6 cierra la infraestructura operacional V1, pero **no levanta el bloqueo de promoción**: el replay produjo 6 alertas `high` y el estado de deployment conserva `promotion_blocked=true`. El trabajo posterior a M6 es operación shadow/human-review, monitoreo prospectivo y acumulación de nueva evidencia; no se declara un M7 hasta formalizar un nuevo alcance.
 
 ---
 
@@ -1736,4 +1815,3 @@ docs/decisions/M3_GATE.md
 ```
 
 M3 validó empíricamente target, split y point-in-time correctness y materializó el model matrix auditado. M4 hereda de forma explícita la incertidumbre de entity resolution y el cambio temporal de prevalencia; ninguna de estas condiciones autoriza a modificar el conjunto TEST o a introducir información futura.
-

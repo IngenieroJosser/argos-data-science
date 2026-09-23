@@ -1,8 +1,8 @@
 # ARGOS — Formulación Analítica y Configuración del Workspace
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> **Versión:** 1.3  
-> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ✅ CLOSED · M6 ▶ READY  
+> **Versión:** 1.4  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ✅ CLOSED · M6 ✅ CLOSED  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1289,3 +1289,19 @@ Regla: M6 puede automatizar la operación del scoring y la cola de revisión, pe
 
 M5 usa `m5-robustness-v1` y cerró `40–47`. El fresh OOT 2026 (`2026-01-01` a `2026-03-13`) contiene 529,054 contratos y obtuvo PR-AUC 0.053274, ROC-AUC 0.744544 y Lift@1% 6.257x. La señal sigue por encima de random, pero la degradación temporal y el drift detectado pasan como requisitos de monitoreo a M6.
 
+
+
+# 20. CHECKPOINT M6 — OPERATIONALIZATION CLOSED
+
+M6 cerró el ciclo V1 de ingeniería con un sistema batch reproducible y gobernado. El replay operacional generó 529,054 scores y una cola Top-K de 5,291 contratos; monitoring persistió 14 alertas, 6 de severidad alta, con score PSI 1.089164.
+
+El resultado operacional es deliberadamente conservador:
+
+```text
+M6 ✅ CLOSED
+Deployment status = OPERATIONALLY_READY_PROMOTION_BLOCKED
+Human review      = REQUIRED
+Auto promotion    = DISABLED
+```
+
+La plataforma está preparada para shadow/human-review y observación prospectiva. La promoción permanece bloqueada hasta disponer de evidencia nueva que justifique un cambio de estado.
