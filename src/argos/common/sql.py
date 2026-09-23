@@ -69,6 +69,64 @@ def clean_text_expr(identifier: str) -> str:
     )
 
 
+
+def trimmed_text_expr(identifier: str) -> str:
+    """Return trimmed VARCHAR text, mapping only empty strings to NULL.
+
+    Unlike :func:`clean_text_expr`, this helper deliberately preserves domain
+    values such as ``No Aplica`` and ``No Definido``. It is suitable for Silver
+    canonical text/identifier columns where those values may carry meaning.
+    """
+    column = quote_identifier(identifier)
+    return f"NULLIF(TRIM(CAST({column} AS VARCHAR)), '')"
+
+
+def money_expr(identifier: str) -> str:
+    """Parse common SECOP monetary representations conservatively.
+
+    Supported forms include plain integers, decimal comma/dot, Colombian
+    thousands grouping (``1.234.567,89``), US grouping
+    (``1,234,567.89``), optional ``$``/``COP`` prefixes and scientific
+    notation. Values outside these explicit patterns return NULL instead of
+    being guessed. The result is ``DECIMAL(38,2)``.
+    """
+    text = clean_text_expr(identifier)
+    compact = (
+        f"REPLACE(REPLACE(REPLACE(UPPER({text}), 'COP', ''), '$', ''), ' ', '')"
+    )
+    return (
+        "CASE "
+        f"WHEN {text} IS NULL THEN NULL "
+        f"WHEN REGEXP_MATCHES({compact}, '^-?[0-9]+$') "
+        f"THEN TRY_CAST({compact} AS DECIMAL(38,2)) "
+        f"WHEN REGEXP_MATCHES({compact}, '^-?[0-9]{{1,3}}(\\.[0-9]{{3}})+(,[0-9]{{1,2}})?$') "
+        f"THEN TRY_CAST(REPLACE(REPLACE({compact}, '.', ''), ',', '.') AS DECIMAL(38,2)) "
+        f"WHEN REGEXP_MATCHES({compact}, '^-?[0-9]{{1,3}}(,[0-9]{{3}})+(\\.[0-9]{{1,2}})?$') "
+        f"THEN TRY_CAST(REPLACE({compact}, ',', '') AS DECIMAL(38,2)) "
+        f"WHEN REGEXP_MATCHES({compact}, '^-?[0-9]+,[0-9]{{1,2}}$') "
+        f"THEN TRY_CAST(REPLACE({compact}, ',', '.') AS DECIMAL(38,2)) "
+        f"WHEN REGEXP_MATCHES({compact}, '^-?[0-9]+\\.[0-9]{{1,2}}$') "
+        f"THEN TRY_CAST({compact} AS DECIMAL(38,2)) "
+        f"WHEN REGEXP_MATCHES({compact}, '^-?[0-9]+(\\.[0-9]+)?[Ee][+-]?[0-9]+$') "
+        f"THEN TRY_CAST(TRY_CAST({compact} AS DOUBLE) AS DECIMAL(38,2)) "
+        "ELSE NULL END"
+    )
+
+
+def row_md5_expr(identifiers: list[str] | tuple[str, ...]) -> str:
+    """Return a stable MD5 fingerprint over a sequence of source columns.
+
+    The fingerprint is lineage metadata, not a business key. Column order is
+    significant and NULL values are represented explicitly.
+    """
+    if not identifiers:
+        raise ValueError("row_md5_expr requires at least one identifier")
+    parts = [
+        f"COALESCE(CAST({quote_identifier(name)} AS VARCHAR), '<NULL>')"
+        for name in identifiers
+    ]
+    return "MD5(CONCAT_WS('|~|', " + ", ".join(parts) + "))"
+
 def _timestamp_formats(date_order: str = "mdy") -> tuple[tuple[str, str], ...]:
     """Return deterministic timestamp formats in parsing priority order.
 

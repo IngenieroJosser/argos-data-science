@@ -332,11 +332,13 @@ La granularidad prevista para el primer dataset de ML es:
 argos-code/
 │
 ├── artifacts/
+│   ├── manifests/
 │   └── models/
 │
 ├── configs/
 │   ├── datasets.toml
-│   └── project.toml
+│   ├── project.toml
+│   └── silver.toml
 │
 ├── data/
 │   ├── bronze/
@@ -347,6 +349,7 @@ argos-code/
 │   ├── problem-definition.md
 │   ├── ARGOS_analytical_framing_workspace.md
 │   ├── M1_RUNBOOK.md
+│   ├── M2_RUNBOOK.md
 │   ├── data-dictionary/
 │   ├── decisions/
 │   └── target-specs/
@@ -359,15 +362,23 @@ argos-code/
 │   ├── 04_temporal_audit.ipynb
 │   ├── 05_data_quality_audit.ipynb
 │   ├── 06_target_feasibility.ipynb
-│   └── 07_m1_gate.ipynb
+│   ├── 07_m1_gate.ipynb
+│   ├── 10_silver_contracts_processes.ipynb
+│   ├── 11_silver_suppliers_bidders.ipynb
+│   ├── 12_silver_events.ipynb
+│   ├── 13_entity_resolution.ipynb
+│   ├── 14_silver_validation.ipynb
+│   └── 15_m2_gate.ipynb
 │
 ├── pipelines/
+│   └── build_silver_contracts_processes.py
 │
 ├── reports/
 │   ├── experiments/
 │   ├── figures/
 │   ├── profiling/
-│   └── quality/
+│   ├── quality/
+│   └── silver/
 │
 ├── scripts/
 │   └── bootstrap_workspace.sh
@@ -385,6 +396,7 @@ argos-code/
 │       ├── models/
 │       ├── profiling/
 │       ├── quality/
+│       ├── silver/
 │       └── targets/
 │
 ├── tests/
@@ -404,40 +416,23 @@ argos-code/
 El proyecto se encuentra en:
 
 ```text
-M1 — Data Understanding & Target Feasibility
+M2 — Silver / Canonical Data Model
 ```
 
-La prioridad actual **no es entrenar modelos**.
+M1 quedó formalmente cerrado con **19/19 checks bloqueantes aprobados**. La evidencia de Bronze y viabilidad del target se conserva como baseline metodológico; la prioridad actual es construir entidades Silver canónicas, tipadas y auditables.
 
-Antes de avanzar a Silver o al modelado, M1 debe responder con evidencia:
+La secuencia M2 es:
 
 ```text
-¿Qué datos existen realmente?
-
-¿Qué representa una fila de cada fuente?
-
-¿Cuáles son las claves candidatas?
-
-¿Qué duplicados existen?
-
-¿Cómo se relacionan las fuentes?
-
-¿Cuál es el coverage de cada join?
-
-¿Cuánto expande cada join?
-
-¿Cómo funciona la temporalidad?
-
-¿Cuál puede ser t0?
-
-¿Qué columnas podrían generar leakage?
-
-¿Es viable construir y_addition_180d?
-
-¿Cuál es la prevalencia?
-
-¿Cuántos contratos están censurados?
+10_silver_contracts_processes
+11_silver_suppliers_bidders
+12_silver_events
+13_entity_resolution
+14_silver_validation
+15_m2_gate
 ```
+
+Silver no es una whitelist de features. La autorización de variables para modelado y la corrección point-in-time se vuelven a comprobar en Gold.
 
 ---
 
@@ -1023,7 +1018,7 @@ Quality
 Target feasibility
 ```
 
-**Estado actual.**
+**Estado:** ✅ CLOSED — 19/19 checks bloqueantes.
 
 ---
 
@@ -1053,6 +1048,10 @@ additions
 payments
 sanctions
 ```
+
+**Estado:** 🚧 IN PROGRESS.
+
+El primer componente implementado es `10_silver_contracts_processes.ipynb`, con lógica reusable en `src/argos/silver/` y configuración congelada en `configs/silver.toml`.
 
 ---
 
@@ -1410,6 +1409,8 @@ impacto en la decisión
 antes que complejidad técnica.
 
 
-## M1 automated gate (current implementation)
+## Gates automatizados
 
-After `00`–`06`, run `07_m1_gate.ipynb`. It persists the auditable gate report and only prints `M1 ✅ CLOSED` when every blocking criterion in `configs/project.toml` passes. `payments` and `sanctions` are explicitly deferred for the first addition-risk V1; they remain visible in the quality audit but cannot enter modeling until their own gates are resolved. The measured `bidders.codigo_proveedor -> suppliers.codigo` direct-link failure is likewise explicit but non-blocking for this first contract-level Silver layer: it is assigned to `13_entity_resolution.ipynb`, where deterministic provider identity strategies (including normalized NIT and code-format diagnostics) must be resolved before bidder/supplier history is used as a feature.
+`07_m1_gate.ipynb` cerró M1 con 19/19 checks bloqueantes. La decisión queda documentada en `docs/decisions/M1_GATE.md`.
+
+M2 seguirá el mismo patrón: cada notebook genera evidencia local y `15_m2_gate.ipynb` será la autoridad final para producir `M2 ✅ CLOSED`. El join directo `bidders.codigo_proveedor -> suppliers.codigo` permanece asignado a `13_entity_resolution.ipynb`; no se fuerza una correspondencia artificial durante la construcción temprana de Silver.

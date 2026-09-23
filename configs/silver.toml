@@ -1,0 +1,131 @@
+# M2 Silver transformation contract.
+# This file freezes decisions supported by M1. It is intentionally explicit so
+# Silver construction does not silently reinterpret Bronze on each run.
+
+[silver]
+schema_version = "m2-silver-v1"
+compression = "zstd"
+row_group_size = 100000
+
+[silver.runtime]
+# Wide SECOP transforms must leave headroom for Python/Jupyter and force
+# DuckDB to spill before unified memory is exhausted on developer laptops.
+duckdb_threads = 2
+duckdb_memory_limit = "8GB"
+
+[contracts]
+primary_key = "id_contrato"
+process_fk = "proceso_de_compra"
+supplier_fk = "codigo_proveedor"
+excluded_semantic_types = ["pii"]
+
+# Fields identified in M1 as mutable/current-state or likely post-t0. They are
+# physically separated from contracts.parquet so they cannot become model
+# features by accident. Gold still performs its own point-in-time audit.
+snapshot_state_columns = [
+    "dias_adicionados",
+    "el_contrato_puede_ser_prorrogado",
+    "estado_contrato",
+    "fecha_fin_liquidacion",
+    "fecha_inicio_liquidacion",
+    "fecha_de_notificacion_de_prorrogacion",
+    "liquidacion",
+    "ultima_actualizacion",
+    "valor_amortizado",
+    "valor_facturado",
+    "valor_pagado",
+    "valor_pendiente_de_ejecucion",
+    "valor_pendiente_de_pago",
+]
+
+[contracts.rename]
+id_contrato = "contract_id"
+proceso_de_compra = "process_id"
+codigo_proveedor = "supplier_code"
+
+[processes]
+# M1 empirically resolved contracts.proceso_de_compra -> processes.id_del_portafolio.
+identity_key = "id_del_portafolio"
+procedure_key = "id_del_proceso"
+reference_key = "referencia_del_proceso"
+excluded_semantic_types = ["pii"]
+
+[processes.rename]
+id_del_portafolio = "process_id"
+id_del_proceso = "procedure_id"
+referencia_del_proceso = "process_reference"
+
+[validation]
+contracts_processes_min_coverage = 0.90
+bidders_processes_min_coverage = 0.95
+additions_contracts_min_coverage = 0.99
+t0_column = "fecha_de_firma"
+t0_min_parse_success_nonnull = 0.98
+addition_event_min_parse_success_nonnull = 0.99
+
+# ---------------------------------------------------------------------------
+# Notebook 11 — suppliers / bidders
+# ---------------------------------------------------------------------------
+[suppliers]
+primary_key = "codigo"
+nit_key = "nit"
+excluded_semantic_types = ["pii"]
+# Legal-representative/contact fields are intentionally outside the general
+# analytical Silver surface. Identity resolution does not require them.
+excluded_columns = [
+    "nombre_representante_legal",
+    "tipo_doc_representante_legal",
+    "numero_doc_representante_legal",
+    "correo_representante_legal",
+    "telefono_representante_legal",
+    "direccion",
+    "correo",
+    "telefono",
+]
+
+[suppliers.rename]
+codigo = "supplier_code"
+nit = "supplier_nit"
+
+[bidders]
+process_key = "id_procedimiento"
+supplier_code_candidate = "codigo_proveedor"
+nit_candidate = "nit_proveedor"
+excluded_semantic_types = ["pii"]
+# ``Proveedor`` can contain a natural-person name. It is unnecessary for the
+# deterministic identifier strategies used in notebook 13.
+excluded_columns = ["proveedor"]
+
+[bidders.rename]
+id_procedimiento = "procedure_id"
+codigo_proveedor = "bidder_code"
+nit_proveedor = "bidder_nit"
+fecha_publicacion = "publication_at"
+fecha_publicaci_n = "publication_at"
+
+# ---------------------------------------------------------------------------
+# Notebook 12 — event layer
+# ---------------------------------------------------------------------------
+[additions]
+contract_key = "id_contrato"
+event_time = "fecharegistro"
+event_type = "tipo"
+identifier = "identificador"
+description = "descripcion"
+
+[additions.rename]
+id_contrato = "contract_id"
+fecharegistro = "event_at"
+tipo = "event_type"
+identificador = "source_event_id"
+descripcion = "event_description"
+
+# ---------------------------------------------------------------------------
+# Notebook 13 — deterministic entity resolution
+# ---------------------------------------------------------------------------
+[entity_resolution]
+code_strategy_enabled = true
+nit_strategy_enabled = true
+# Reporting threshold only: a low resolved share is a finding, not permission
+# to force fuzzy matches. M2 blocks on auditability, not on an invented match.
+report_min_resolved_coverage = 0.50

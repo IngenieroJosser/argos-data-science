@@ -79,7 +79,9 @@ class ProjectPaths:
             self.reports / "quality",
             self.reports / "figures",
             self.reports / "experiments",
+            self.reports / "silver",
             self.root / ".cache" / "duckdb",
             self.root / "artifacts" / "models",
+            self.root / "artifacts" / "manifests",
         ]:
             path.mkdir(parents=True, exist_ok=True)
