@@ -1476,3 +1476,4 @@ docs/decisions/M2_GATE.md
 ```
 
 M2 preservó explícitamente la población no resuelta/ambigua de bidder→supplier en lugar de forzar correspondencias. M3 hereda esa incertidumbre y deberá congelar la semántica del target, diseñar el split temporal y aprobar un audit point-in-time antes de entrenar modelos.
+
