@@ -1,0 +1,92 @@
+# M5 Advanced Data Science & Robustness contract.
+# M5 strengthens evidence around the frozen ARGOS V1 model. It does NOT reuse
+# TEST 2025 for model selection and it does not mutate the M4 selection.
+
+[m5]
+schema_version = "m5-robustness-v1"
+benchmark_gold_schema = "m3-gold-v1"
+benchmark_model_schema = "m4-model-v1"
+benchmark_model_name = "hist_gradient_boosting"
+benchmark_calibration = "isotonic"
+random_seed = 42
+batch_size = 100000
+
+[runtime]
+duckdb_threads = 2
+duckdb_memory_limit = "8GB"
+
+[backtesting]
+evaluation_years = [2021, 2022, 2023, 2024]
+max_train_rows = 250000
+max_iter = 120
+min_training_rows = 100000
+min_evaluation_rows = 50000
+min_evaluation_positives = 250
+operational_fraction = 0.01
+
+[explainability]
+validation_start = "2024-07-01"
+validation_end = "2024-12-31"
+sample_rows = 50000
+permutation_repeats = 3
+local_case_count = 25
+min_global_features_reported = 10
+
+[uncertainty]
+sample_rows = 100000
+validation_start = "2024-07-01"
+validation_end = "2024-12-31"
+bootstrap_replicates = 200
+confidence_level = 0.95
+operational_fraction = 0.01
+
+[drift]
+reference_start = "2023-01-01"
+reference_end = "2023-12-31"
+monitor_start = "2024-01-01"
+monitor_end = "2025-12-31"
+sample_rows_per_period = 100000
+numeric_bins = 10
+psi_warning = 0.10
+psi_high = 0.25
+categorical_tvd_warning = 0.10
+categorical_tvd_high = 0.25
+
+[feature_value]
+evaluation_years = [2022, 2023, 2024]
+max_train_rows = 200000
+max_iter = 80
+families = ["contract", "contract_historical", "all"]
+operational_fraction = 0.01
+
+[fresh_oot]
+start = "2026-01-01"
+max_end = "2026-12-31"
+min_rows = 20000
+min_positives = 100
+operational_fraction = 0.01
+reuse_completed_artifacts = true
+
+[ranking]
+tie_break = ["score_desc", "raw_score_desc", "contract_id_asc"]
+review_fractions = [0.001, 0.005, 0.01, 0.025, 0.05, 0.10]
+
+[acceptance]
+min_backtest_folds = 4
+min_backtest_lift_at_operational_k = 1.0
+min_fresh_oot_pr_auc_over_prevalence = 1.0
+min_fresh_oot_lift_at_operational_k = 1.0
+max_model_hash_mismatches = 0
+
+[governance]
+consumed_test_year = 2025
+fresh_oot_year = 2026
+production_authorized = false
+
+[monitoring]
+prevalence_relative_change_warning = 0.30
+score_psi_warning = 0.10
+score_psi_high = 0.25
+top_k_lift_floor = 1.0
+tail_calibration_abs_gap_warning = 0.03
+feature_missingness_absolute_delta_warning = 0.05

@@ -4,7 +4,7 @@
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
 > Versión: 1.3  
-> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ READY
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ IN PROGRESS
 
 ---
 
@@ -623,7 +623,7 @@ Cada hipótesis deberá probarse utilizando un diseño de evaluación previament
 
 M4 validó el primer experimento supervisado completo sin reabrir el contrato Gold. El modelo seleccionado fue `hist_gradient_boosting` con calibración isotónica. Sobre TEST temporal 2025 obtuvo PR-AUC `0.135250`, ROC-AUC `0.872745`, Brier `0.009638`, ECE `0.002843` y Lift@1% `25.274x`. El gate M4 cerró con 14/14 checks bloqueantes.
 
-Esta evidencia demuestra capacidad de priorización fuera del periodo de selección, pero no autoriza producción. El TEST 2025 queda consumido y M5 deberá usar protocolos temporales adicionales y un nuevo holdout futuro para cualquier nueva afirmación final de generalización.
+Esta evidencia demuestra capacidad de priorización fuera del periodo de selección, pero no autoriza producción. El TEST 2025 queda consumido. M5 está activo con rolling-origin backtesting, explainability, incertidumbre, drift/calibración, revalidación de familias y un fresh OOT 2026 reservado hasta completar el desarrollo previo.
 
 Limitaciones transportadas: drift de prevalencia, calibración de cola alta, ausencia de atribución explícita por feature y falta de evidencia monotónica de valor incremental para todas las familias de features.
 

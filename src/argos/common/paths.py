@@ -82,6 +82,7 @@ class ProjectPaths:
             self.reports / "silver",
             self.reports / "gold",
             self.reports / "modeling",
+            self.reports / "robustness",
             self.gold / "labels",
             self.gold / "splits",
             self.gold / "features",
@@ -89,6 +90,8 @@ class ProjectPaths:
             self.root / ".cache" / "duckdb",
             self.root / "artifacts" / "models",
             self.root / "artifacts" / "models" / "m4",
+            self.root / "artifacts" / "models" / "m5",
+            self.root / "data" / "m5",
             self.root / "artifacts" / "manifests",
         ]:
             path.mkdir(parents=True, exist_ok=True)

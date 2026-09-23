@@ -21,7 +21,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [6. Arquitectura de datos](#6-arquitectura-de-datos)
 - [7. Estructura del repositorio](#7-estructura-del-repositorio)
 - [8. Estado actual del proyecto](#8-estado-actual-del-proyecto)
-- [9. Notebooks y gates de M1–M4](#9-notebooks-y-gates-de-m1m4)
+- [9. Notebooks y gates de M1–M5](#9-notebooks-y-gates-de-m1m5)
 - [10. Arquitectura del código](#10-arquitectura-del-código)
 - [11. Configuración](#11-configuración)
 - [12. Instalación](#12-instalación)
@@ -352,13 +352,15 @@ argos-code/
 │   ├── project.toml
 │   ├── silver.toml
 │   ├── gold.toml
-│   └── modeling.toml
+│   ├── modeling.toml
+│   └── robustness.toml
 │
 ├── data/
 │   ├── bronze/
 │   ├── silver/
 │   ├── gold/
-│   └── modeling/
+│   ├── modeling/
+│   └── robustness/
 │
 ├── docs/
 │   ├── problem-definition.md
@@ -370,10 +372,12 @@ argos-code/
 │   ├── M4_HANDOFF.md
 │   ├── M4_RUNBOOK.md
 │   ├── M5_HANDOFF.md
+│   ├── M5_RUNBOOK.md
 │   ├── README.md
 │   ├── data-dictionary/
 │   ├── decisions/
 │   ├── models/
+│   ├── monitoring/
 │   └── target-specs/
 │
 ├── notebooks/
@@ -406,12 +410,21 @@ argos-code/
 │   ├── 34_error_analysis_and_explainability.ipynb
 │   ├── 35_ablation_studies.ipynb
 │   ├── 36_business_impact.ipynb
-│   └── 37_m4_gate.ipynb
+│   ├── 37_m4_gate.ipynb
+│   ├── 40_temporal_backtesting.ipynb
+│   ├── 41_explainability.ipynb
+│   ├── 42_uncertainty_and_ranking_stability.ipynb
+│   ├── 43_drift_and_calibration_monitoring.ipynb
+│   ├── 44_feature_family_revalidation.ipynb
+│   ├── 45_fresh_oot_2026.ipynb
+│   ├── 46_preproduction_readiness.ipynb
+│   └── 47_m5_gate.ipynb
 │
 ├── pipelines/
 │   ├── build_silver_contracts_processes.py
 │   ├── build_gold_m3.py
-│   └── run_modeling_m4.py
+│   ├── run_modeling_m4.py
+│   └── run_robustness_m5.py
 │
 ├── reports/
 │   ├── experiments/
@@ -420,13 +433,15 @@ argos-code/
 │   ├── quality/
 │   ├── silver/
 │   ├── gold/
-│   └── modeling/
+│   ├── modeling/
+│   └── robustness/
 │
 ├── scripts/
 │   ├── bootstrap_workspace.sh
 │   ├── evaluate_m1_gate.py
 │   ├── evaluate_m3_gate.py
-│   └── evaluate_m4_gate.py
+│   ├── evaluate_m4_gate.py
+│   └── evaluate_m5_gate.py
 │
 ├── sql/
 │
@@ -442,6 +457,7 @@ argos-code/
 │       ├── models/
 │       ├── profiling/
 │       ├── quality/
+│       ├── robustness/
 │       ├── silver/
 │       └── targets/
 │
@@ -459,7 +475,7 @@ argos-code/
 
 # 8. Estado actual del proyecto
 
-ARGOS completó y cerró formalmente su primer experimento predictivo V1 sobre la capa Gold point-in-time. El siguiente milestone autorizado es:
+ARGOS completó y cerró formalmente su primer experimento predictivo V1 sobre la capa Gold point-in-time. El milestone activo es:
 
 ```text
 M5 — Advanced Data Science & Robustness
@@ -472,7 +488,7 @@ M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED — 19/19
 M2 — Silver / Canonical Data Model                    ✅ CLOSED — 10/10
 M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED — 13/13
 M4 — Modeling & Evaluation                            ✅ CLOSED — 14/14
-M5 — Advanced Data Science & Robustness               ▶ READY
+M5 — Advanced Data Science & Robustness               ▶ IN PROGRESS
 ```
 
 M4 quedó cerrado por `37_m4_gate.ipynb` con **14/14 checks bloqueantes aprobados**. El gate verificó la cadena completa `30`–`36`, presencia de reportes y manifests, consistencia de schema `m4-model-v1`, aislamiento del conjunto TEST, hashes del modelo/calibrador congelados antes de TEST y persistencia de la model card.
@@ -529,7 +545,7 @@ docs/models/ARGOS_V1_MODEL_CARD.md
 docs/M5_HANDOFF.md
 ```
 
-# 9. Notebooks y gates de M1–M4
+# 9. Notebooks y gates de M1–M5
 
 Los notebooks deben ejecutarse **en orden**.
 
@@ -900,6 +916,40 @@ La decisión computable se conserva en `docs/decisions/M4_GATE.md`.
 
 ---
 
+## `40_temporal_backtesting.ipynb`
+
+Ejecuta rolling-origin backtesting `2021–2024` con la receta HGB fijada y sin reutilizar TEST 2025. Persistirá métricas y Lift@K por fold.
+
+## `41_explainability.ipynb`
+
+Materializa permutation importance global, resumen por familia y sensibilidad local por sustitución de una feature hacia un valor de referencia. Las explicaciones son predictivas, no causales.
+
+## `42_uncertainty_and_ranking_stability.ipynb`
+
+Añade intervalos mediante calendar-week block bootstrap y congela el desempate operacional `calibrated_score DESC → raw_score DESC → contract_id ASC`.
+
+## `43_drift_and_calibration_monitoring.ipynb`
+
+Mide drift de features y scores, categorías nuevas y calibración explícita en la cola de mayor score. TEST 2025 aparece únicamente como benchmark histórico consumido.
+
+## `44_feature_family_revalidation.ipynb`
+
+Repite ablations de familias sobre varios años con el mismo algoritmo, muestra y presupuesto. Cuantifica de forma específica el incremento de `competition` frente a `contract + historical`.
+
+## `45_fresh_oot_2026.ipynb`
+
+Construye la cohorte 2026 completamente observable para el horizonte de 180 días y evalúa el **V1 congelado**, sin reselección. Es un holdout parcial de año y su limitación estacional queda explícita.
+
+## `46_preproduction_readiness.ipynb`
+
+Sintetiza evidencia y genera `ARGOS_V1_ROBUSTNESS_CARD.md` y `ARGOS_V1_MONITORING_SPEC.md`. Su aprobación no autoriza producción.
+
+## `47_m5_gate.ipynb`
+
+Gate formal de M5: valida `40–46`, lineage, hashes, fresh OOT, documentación y gobernanza. Solo entonces puede persistir `M5 ✅ CLOSED`.
+
+---
+
 # 10. Arquitectura del código
 
 Los notebooks **no contienen la lógica principal del proyecto**.
@@ -960,10 +1010,11 @@ configs/
 ├── project.toml
 ├── silver.toml
 ├── gold.toml
-└── modeling.toml
+├── modeling.toml
+└── robustness.toml
 ```
 
-`datasets.toml` describe fuentes y relaciones candidatas; `silver.toml` y `gold.toml` congelan contratos de datos; `modeling.toml` congela el protocolo M4 antes de TEST, incluyendo seed, presupuesto de entrenamiento, partición temporal de calibración, capacidades de revisión, criterios de aceptación y política de consumo de TEST.
+`datasets.toml` describe fuentes y relaciones candidatas; `silver.toml` y `gold.toml` congelan contratos de datos; `modeling.toml` congela el protocolo M4 antes de TEST; y `robustness.toml` congela el protocolo M5, incluyendo rolling folds, bootstrap, drift thresholds, desempate del ranking y gobernanza del fresh OOT 2026.
 
 El contrato M4 activo durante el experimento fue:
 
@@ -1314,27 +1365,24 @@ M4 cierra el **experimento predictivo V1**, no la preparación para producción.
 
 ## M5 — Advanced Data Science & Robustness
 
-**Estado:** ▶ READY.
+**Estado:** ▶ IN PROGRESS.
 
-M5 parte de un baseline supervisado temporalmente validado. Sus prioridades son fortalecer evidencia antes de aumentar complejidad:
+M5 parte del ARGOS V1 congelado y fortalece evidencia antes de aumentar complejidad. El protocolo activo es `m5-robustness-v1` y se ejecuta mediante notebooks `40–47`:
 
 ```text
-robustez temporal / rolling backtests
-explicabilidad global y local
-incertidumbre y sensibilidad de métricas
-revalidación de familias de features
-calibración en el extremo de alto riesgo
-CatBoost / LightGBM u otros modelos solo con protocolo versionado
-Survival Analysis
-Anomaly Detection
-NLP
-Graph Analytics / Graph ML
-Causal Analysis
-Forecasting
-Risk Fusion
+40  rolling-origin temporal backtesting
+41  explainability global y local
+42  incertidumbre + estabilidad del ranking
+43  drift + calibración de cola
+44  revalidación de familias de features
+45  fresh OOT 2026 con V1 congelado
+46  contrato de monitoreo / evidencia pre-producción
+47  gate M5
 ```
 
-La regla central es que componentes avanzados deben demostrar **valor incremental** mediante ablations y evaluación temporal. El TEST 2025 ya no es un holdout virgen. Handoff: `docs/M5_HANDOFF.md`.
+Modelos o señales adicionales —CatBoost/LightGBM/XGBoost, supervivencia, anomalías, NLP, grafos, causalidad, forecasting y risk fusion— quedan **autorizados para investigación posterior**, pero no se promueven en este paquete solo por añadir complejidad. Primero debe cerrarse la evidencia de robustez del benchmark V1.
+
+La regla central es que componentes avanzados deben demostrar **valor incremental** mediante ablations y evaluación temporal. TEST 2025 ya no es un holdout virgen. El fresh OOT 2026 se reserva hasta completar `40–44` y el pipeline exige `--consume-fresh-oot` para consumirlo. Handoff: `docs/M5_HANDOFF.md`. Runbook: `docs/M5_RUNBOOK.md`.
 
 ---
 

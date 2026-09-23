@@ -3,7 +3,7 @@
 > **Origen:** M4 — Modeling & Evaluation  
 > **Estado de origen:** ✅ CLOSED — 14/14 checks bloqueantes  
 > **Destino:** M5 — Advanced Data Science & Robustness  
-> **Estado de destino:** ▶ READY  
+> **Estado de destino:** ▶ IN PROGRESS — implementation package prepared; empirical execution pending  
 > **Modelo de referencia:** ARGOS V1 — `hist_gradient_boosting + isotonic`
 
 ## 1. Propósito
@@ -144,6 +144,10 @@ M5 no debe cerrarse por producir modelos más complejos. Su gate deberá exigir 
 - separación clara entre benchmark 2025 consumido y un futuro holdout final;
 - manifests y lineage de todos los experimentos promovidos.
 
-## 9. Principio
+## 9. Activación de M5
+
+El protocolo activo está implementado en `docs/M5_RUNBOOK.md` y notebooks `40–47`. La secuencia reserva el holdout 2026 hasta que el trabajo de desarrollo `40–44` esté completo.
+
+## 10. Principio
 
 > Complejidad adicional solo entra en ARGOS si aporta evidencia incremental bajo un protocolo temporal más fuerte que el utilizado para crearla.

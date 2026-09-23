@@ -2,7 +2,7 @@
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
 > **Versión:** 1.3  
-> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ READY  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ IN PROGRESS  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1283,3 +1283,8 @@ Prioridades M5:
 ```
 
 Regla: TEST 2025 está consumido. No puede reutilizarse como criterio de selección en M5.
+
+
+## Checkpoint M5 activo — 2026-09-23
+
+M5 usa `m5-robustness-v1` y notebooks `40–47`. El diseño no reabre TEST 2025 para selección. El primer holdout post-M4 es la cohorte 2026 plenamente observable y se reserva hasta finalizar `40–44`. El gate M5 exige robustness card, monitoring spec, lineage y producción explícitamente no autorizada por defecto.
