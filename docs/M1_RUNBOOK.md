@@ -24,6 +24,8 @@ The first pass exposed four blocking issues. The code now treats them explicitly
 
 `payments` and `sanctions` remain inventoried and audited, but are explicitly deferred for the first addition-risk V1. Their unresolved issues do not become model features and do not block the V1 Silver gate.
 
+The direct `bidders.codigo_proveedor -> suppliers.codigo` hypothesis is also measured rather than hidden: the current snapshot produced 0% direct overlap. Because the first Silver contract/event layer and `y_addition_180d` do not depend on this edge, M1 records it as a **non-blocking, explicit Silver entity-resolution obligation**. `13_entity_resolution.ipynb` must investigate provider-code representation and alternative deterministic identifiers (for example normalized NIT) before bidder-level supplier history is used in features.
+
 ## Design rule
 
 Notebooks are orchestration + scientific narrative. Reusable computation is under `src/argos/`.

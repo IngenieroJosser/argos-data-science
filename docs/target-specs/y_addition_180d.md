@@ -26,7 +26,7 @@ before calculating the first post-`t0` event. Source duplicates cannot create ad
 
 ## Event scope
 
-For M1 feasibility, every parsable row in the dedicated Adiciones source is included. `Tipo` is retained in the deduplication key. If later domain review shows that only a subset of `Tipo` values represent the outcome of interest, `included_addition_types` must be explicitly configured and this specification revised.
+For M1 feasibility, every parsable row in the dedicated Adiciones source is included. `Tipo` is retained in the deduplication key. This is explicitly a **feasibility scope**, not the final semantic freeze of the modeling target: the observed source contains several event types beyond literal value additions. Before Gold target/model training, the project must either (a) justify the all-row event interpretation and rename the target accordingly, or (b) explicitly configure the subset of `Tipo` values that represents the outcome of interest and revise this specification.
 
 ## Positive
 

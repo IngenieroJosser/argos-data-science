@@ -45,3 +45,7 @@ target_prevalence_max = 0.80
 # the first addition-risk Silver layer. They become blocking when their own
 # targets/features are promoted into scope.
 deferred_datasets = ["payments", "sanctions"]
+# The direct Codigo Proveedor -> Codigo hypothesis is measured (0% overlap) but
+# is not required for the first contract-level addition-risk Silver layer.
+# Resolution is an explicit Silver entity-resolution obligation, not a silent pass.
+deferred_relationships = ["bidders_suppliers"]

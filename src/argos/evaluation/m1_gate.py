@@ -75,7 +75,9 @@ def evaluate_m1_gate(
     profiling = reports_root / "profiling"
     quality = reports_root / "quality"
     gate_cfg = config["m1_gate"]
-    deferred = set(config.get("m1_scope", {}).get("deferred_datasets", []))
+    scope_cfg = config.get("m1_scope", {})
+    deferred = set(scope_cfg.get("deferred_datasets", []))
+    deferred_relationships = set(scope_cfg.get("deferred_relationships", []))
 
     required_files = {
         "inventory": profiling / "dataset_inventory.parquet",
@@ -322,7 +324,42 @@ def evaluate_m1_gate(
             passed=passed,
             observed=observed,
             requirement=f"coverage >= {minimum:.2%}",
+            blocking=name not in deferred_relationships,
         )
+
+    # M1 is a data-understanding gate, not an entity-resolution gate. A direct
+    # FK hypothesis may fail and still be sufficient evidence for M1 when the
+    # failure is measured and explicitly assigned to Silver entity resolution.
+    # This prevents both extremes: silently accepting a broken join, or blocking
+    # the contract-level V1 on a relationship that is not required to build its
+    # first Silver contract/event layer.
+    bidders_suppliers_row = joins.loc[
+        (joins["relationship"] == "bidders_suppliers")
+        & (joins["status"] == "analyzed")
+    ]
+    _check(
+        records,
+        check_id="bidders_suppliers_resolution_deferred",
+        category="scope",
+        description=(
+            "The failed direct Bidders -> Suppliers identifier hypothesis is "
+            "measured and explicitly assigned to Silver entity resolution"
+        ),
+        passed=(
+            "bidders_suppliers" in deferred_relationships
+            and not bidders_suppliers_row.empty
+        ),
+        observed={
+            "direct_coverage": _scalar(
+                bidders_suppliers_row, "left_row_coverage"
+            ),
+            "deferred_to": "13_entity_resolution",
+        },
+        requirement=(
+            "relationship is analyzed and listed in "
+            "m1_scope.deferred_relationships"
+        ),
+    )
 
     t0_name = normalize_for_gate(config["target"]["candidate_t0_column"])
     t0 = temporal.loc[
@@ -474,6 +511,18 @@ def evaluate_m1_gate(
         requirement="payments and sanctions explicitly listed as deferred for addition-risk V1",
     )
 
+    _check(
+        records,
+        check_id="deferred_relationships_explicit",
+        category="scope",
+        description="Unresolved non-core relationships are explicitly deferred",
+        passed={"bidders_suppliers"}.issubset(deferred_relationships),
+        observed=sorted(deferred_relationships),
+        requirement=(
+            "bidders_suppliers explicitly listed for Silver entity resolution"
+        ),
+    )
+
     report = pd.DataFrame.from_records(records)
     blocking = report.loc[report["blocking"]]
     failed = tuple(blocking.loc[~blocking["passed"], "check_id"].tolist())
@@ -503,18 +552,19 @@ def render_m1_gate_markdown(report: pd.DataFrame, decision: GateDecision) -> str
         "",
         f"Blocking checks passed: **{decision.passed}/{decision.total}**.",
         "",
-        "| Check | Category | Result | Observed | Requirement |",
-        "|---|---|---|---|---|",
+        "| Check | Category | Gate role | Result | Observed | Requirement |",
+        "|---|---|---|---|---|---|",
     ]
 
     for row in report.itertuples(index=False):
-        result = "PASS" if row.passed else "FAIL"
+        result = "PASS" if row.passed else ("FAIL" if row.blocking else "DEFERRED")
+        gate_role = "blocking" if row.blocking else "non-blocking"
         observed = str(row.observed).replace("|", "\\|").replace("\n", " ")
         requirement = str(row.requirement).replace("|", "\\|").replace("\n", " ")
         description = str(row.description).replace("|", "\\|").replace("\n", " ")
         lines.append(
-            f"| `{row.check_id}` — {description} | {row.category} | {result} | "
-            f"{observed} | {requirement} |"
+            f"| `{row.check_id}` — {description} | {row.category} | {gate_role} | "
+            f"{result} | {observed} | {requirement} |"
         )
 
     lines.extend(
@@ -531,8 +581,14 @@ def render_m1_gate_markdown(report: pd.DataFrame, decision: GateDecision) -> str
                 "to Silver. Payments and sanctions remain explicitly deferred and do not "
                 "become modeling inputs until their own data-quality gates are resolved.",
                 "",
+                "The direct `bidders.codigo_proveedor -> suppliers.codigo` hypothesis is "
+                "also explicitly deferred to `13_entity_resolution`: its measured failure "
+                "is a Silver identity-resolution requirement, not an unobserved assumption.",
+                "",
                 "The closure does not authorize mutable/post-t0 fields as model features. "
                 "Point-in-time correctness remains mandatory in Gold feature engineering.",
+                "The all-row Adiciones event scope used in M1 is a feasibility scope; the "
+                "final event-type semantics must be frozen before Gold target/model training.",
             ]
         )
     else:
