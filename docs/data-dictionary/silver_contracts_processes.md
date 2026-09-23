@@ -1,6 +1,7 @@
 # Silver data dictionary — Contracts & Processes
 
-Schema version: `m2-silver-v1`
+> **Estado M2:** ✅ CLOSED  
+> **Schema version:** `m2-silver-v1`
 
 ## `contracts.parquet`
 

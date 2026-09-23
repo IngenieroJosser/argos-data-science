@@ -1,8 +1,8 @@
 # ARGOS — Formulación Analítica y Configuración del Workspace
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> **Versión:** 1.0  
-> **Estado:** Formulación inicial; debe validarse durante *Data Understanding*  
+> **Versión:** 1.1  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ READY  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1224,12 +1224,14 @@ Los notebooks deben consumir funciones de `src/argos/` en vez de acumular toda l
 
 ---
 
-# 27. PRIMER COMMIT RECOMENDADO
+# 27. CHECKPOINT ACTUAL RECOMENDADO
+
+M2 está formalmente cerrado. El checkpoint recomendado es:
 
 ```bash
 git add .
-git commit -m "chore: bootstrap ARGOS data science workspace"
-git push origin main
+git commit -m "feat(silver): completa la capa canónica y cierra M2"
+git tag m2-cerrado
 ```
 
 ---
@@ -1237,24 +1239,21 @@ git push origin main
 # 28. SIGUIENTE MILESTONE
 
 ```text
-M1 — Data Understanding & Target Feasibility
+M3 — Gold / Point-in-Time Analytical Layer
 ```
 
-Definition of Done:
+Prioridades de entrada:
 
 ```text
-[ ] 7 datasets inventariados
-[ ] schemas documentados
-[ ] granularidad identificada
-[ ] PK/FK candidatas analizadas
-[ ] cardinalidades medidas
-[ ] join coverage medido
-[ ] cobertura temporal medida
-[ ] columnas mutables identificadas
-[ ] leakage audit completado
-[ ] t0 candidato evaluado
-[ ] y_addition_180d evaluado
-[ ] data model documentado
+[ ] congelar la semántica final del target
+[ ] construir labels con censoring explícito
+[ ] diseñar split temporal antes de EDA/modelado
+[ ] crear features únicamente con información <= t0
+[ ] auditar leakage y point-in-time correctness
+[ ] materializar Gold reproducible
+[ ] cerrar M3 con gate antes de Modeling
 ```
 
-No se debe entrenar ningún modelo hasta completar esta fase.
+Contrato de entrada: `docs/M3_HANDOFF.md`.
+
+No se debe entrenar ningún modelo antes de completar el audit Gold point-in-time y el gate de M3.

@@ -3,8 +3,8 @@
 > **Documento de definición del problema**
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> Versión: 1.0  
-> Estado: Inicial / sujeto a validación durante Data Understanding
+> Versión: 1.1  
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ READY
 
 ---
 

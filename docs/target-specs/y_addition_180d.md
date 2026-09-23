@@ -1,5 +1,8 @@
 # Target specification — `y_addition_180d`
 
+> **Estado:** CANDIDATE — semantic freeze pendiente en M3  
+> **Fuente de eventos:** `data/silver/addition_events.parquet` (`m2-silver-v1`)
+
 ## Analytical question
 
 Given information available at contract prediction time `t0`, does the contract experience at least one event from the dedicated SECOP II **Adiciones** source during the next 180 days?
@@ -26,7 +29,7 @@ before calculating the first post-`t0` event. Source duplicates cannot create ad
 
 ## Event scope
 
-For M1 feasibility, every parsable row in the dedicated Adiciones source is included. `Tipo` is retained in the deduplication key. This is explicitly a **feasibility scope**, not the final semantic freeze of the modeling target: the observed source contains several event types beyond literal value additions. Before Gold target/model training, the project must either (a) justify the all-row event interpretation and rename the target accordingly, or (b) explicitly configure the subset of `Tipo` values that represents the outcome of interest and revise this specification.
+For M1/M2 feasibility, every parsable row in the dedicated Adiciones source is included. `Tipo` is retained in the deduplication key. This is explicitly a **feasibility scope**, not the final semantic freeze of the modeling target: the observed source contains several event types beyond literal value additions. Before Gold target/model training, the project must either (a) justify the all-row event interpretation and rename the target accordingly, or (b) explicitly configure the subset of `Tipo` values that represents the outcome of interest and revise this specification.
 
 ## Positive
 

@@ -21,14 +21,14 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [6. Arquitectura de datos](#6-arquitectura-de-datos)
 - [7. Estructura del repositorio](#7-estructura-del-repositorio)
 - [8. Estado actual del proyecto](#8-estado-actual-del-proyecto)
-- [9. Notebooks de M1](#9-notebooks-de-m1)
+- [9. Notebooks y gates de M1–M2](#9-notebooks-y-gates-de-m1m2)
 - [10. Arquitectura del código](#10-arquitectura-del-código)
 - [11. Configuración](#11-configuración)
 - [12. Instalación](#12-instalación)
 - [13. Ejecución](#13-ejecución)
 - [14. Artefactos generados](#14-artefactos-generados)
 - [15. Calidad, pruebas y estilo](#15-calidad-pruebas-y-estilo)
-- [16. Criterio de finalización de M1](#16-criterio-de-finalización-de-m1)
+- [16. Gates y criterios de cierre](#16-gates-y-criterios-de-cierre)
 - [17. Roadmap](#17-roadmap)
 - [18. Riesgos metodológicos](#18-riesgos-metodológicos)
 - [19. Convenciones de trabajo](#19-convenciones-de-trabajo)
@@ -281,27 +281,35 @@ Regla:
 
 ## Silver
 
-Contendrá representaciones limpias y canónicas.
+M2 construyó la capa canónica `m2-silver-v1`. Silver contiene representaciones limpias, tipadas, trazables y reutilizables del dominio, pero **no constituye una whitelist de features**.
 
-Ejemplos futuros:
+Los 12 artefactos canónicos cerrados en M2 son:
 
 ```text
-contracts
-processes
-suppliers
-bidders
-additions
-payments
-sanctions
+contracts.parquet
+contracts_snapshot_state.parquet
+process_versions.parquet
+processes.parquet
+contract_process_links.parquet
+suppliers.parquet
+bidder_participations.parquet
+procedure_process_map.parquet
+bidder_process_links.parquet
+addition_event_versions.parquet
+addition_events.parquet
+bidder_supplier_entity_map.parquet
 ```
 
-Las transformaciones Bronze → Silver deberán ser:
+Las transformaciones Bronze → Silver son:
 
 - reproducibles;
 - auditables;
 - tipadas;
 - validadas;
-- idempotentes cuando sea posible.
+- diseñadas para ejecución out-of-core cuando el volumen lo exige;
+- idempotentes cuando es posible.
+
+Los campos contractuales mutables/post-`t0` se segregan físicamente y la ambigüedad de entity resolution se preserva en lugar de forzar correspondencias. Gold vuelve a auditar point-in-time correctness antes de autorizar cualquier feature.
 
 ---
 
@@ -350,6 +358,8 @@ argos-code/
 │   ├── ARGOS_analytical_framing_workspace.md
 │   ├── M1_RUNBOOK.md
 │   ├── M2_RUNBOOK.md
+│   ├── M3_HANDOFF.md
+│   ├── README.md
 │   ├── data-dictionary/
 │   ├── decisions/
 │   └── target-specs/
@@ -413,30 +423,42 @@ argos-code/
 
 # 8. Estado actual del proyecto
 
-El proyecto se encuentra en:
+El proyecto se encuentra en transición formal hacia:
 
 ```text
-M2 — Silver / Canonical Data Model
+M3 — Gold / Point-in-Time Analytical Layer
 ```
 
-M1 quedó formalmente cerrado con **19/19 checks bloqueantes aprobados**. La evidencia de Bronze y viabilidad del target se conserva como baseline metodológico; la prioridad actual es construir entidades Silver canónicas, tipadas y auditables.
-
-La secuencia M2 es:
+Estado de milestones:
 
 ```text
-10_silver_contracts_processes
-11_silver_suppliers_bidders
-12_silver_events
-13_entity_resolution
-14_silver_validation
-15_m2_gate
+M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED — 19/19
+M2 — Silver / Canonical Data Model                    ✅ CLOSED — 10/10
+M3 — Target & Gold Dataset                            ▶ READY
 ```
 
-Silver no es una whitelist de features. La autorización de variables para modelado y la corrección point-in-time se vuelven a comprobar en Gold.
+M2 quedó cerrado por `15_m2_gate.ipynb` con **10/10 checks bloqueantes aprobados**. El cierre verifica los checks de notebooks `10`–`14`, la presencia de los 12 artefactos Silver canónicos, manifests completos, consistencia de schema `m2-silver-v1`, cero issues bloqueantes y auditoría explícita de entity resolution.
 
----
+La capa Silver queda **congelada como baseline de dominio**. Cambios posteriores sobre su schema o reglas requieren una decisión documentada y la reejecución de los gates afectados.
 
-# 9. Notebooks de M1
+Deudas no bloqueantes transportadas a M3:
+
+- la cobertura de bidder→supplier es limitada y se preservan estados `unresolved`/`ambiguous`;
+- `payments` y `sanctions` continúan diferidos para el V1 de riesgo de adiciones;
+- la semántica final de `y_addition_180d` aún debe congelarse a partir de los tipos de evento conservados en Silver;
+- ninguna columna Silver queda autorizada automáticamente como feature: Gold debe reconstruir su disponibilidad `<= t0`.
+
+Documentos de autoridad:
+
+```text
+docs/decisions/M1_GATE.md
+docs/decisions/M2_GATE.md
+docs/M3_HANDOFF.md
+docs/data-dictionary/silver_m2_catalog.md
+```
+
+
+# 9. Notebooks y gates de M1–M2
 
 Los notebooks deben ejecutarse **en orden**.
 
@@ -693,6 +715,38 @@ La transición a Silver está autorizada únicamente cuando imprime:
 M1 ✅ CLOSED
 ```
 
+
+## `10_silver_contracts_processes.ipynb`
+
+Canonicaliza contratos y procesos, segrega estado mutable/post-`t0`, preserva variantes de procesos y materializa links contrato→proceso sin expansión accidental. **Resultado: 10/10 checks bloqueantes.**
+
+## `11_silver_suppliers_bidders.ipynb`
+
+Canonicaliza suppliers y participaciones de proponentes, materializa el mapa procedimiento→proceso y los links bidder→process. **Resultado: 6/6 checks bloqueantes.**
+
+## `12_silver_events.ipynb`
+
+Canonicaliza Adiciones con procesamiento out-of-core, preserva todos los tipos de evento y produce eventos únicos enlazables con contratos. **Resultado: 5/5 checks bloqueantes.**
+
+## `13_entity_resolution.ipynb`
+
+Resuelve bidder→supplier únicamente mediante estrategias determinísticas auditables y preserva `unresolved`/`ambiguous` cuando no existe evidencia suficiente. **Resultado: 4/4 checks bloqueantes.**
+
+## `14_silver_validation.ipynb`
+
+Valida integridad cruzada, manifests, schema, relaciones y deuda explícita de M2. **Resultado: 8/8 checks bloqueantes.**
+
+## `15_m2_gate.ipynb`
+
+Es la autoridad formal de transición M2→M3. Consume evidencia persistida de `10`–`14` y cerró M2 con:
+
+```text
+M2 ✅ CLOSED
+Blocking checks: 10/10
+```
+
+La decisión persistida está en `docs/decisions/M2_GATE.md`.
+
 ---
 
 # 10. Arquitectura del código
@@ -872,28 +926,23 @@ data/bronze/
 
 Los datos no forman parte del código fuente del proyecto.
 
-Ejecuta los notebooks desde la raíz del repositorio y en este orden:
+La secuencia histórica cerrada del proyecto es:
 
 ```text
-00_bronze_inventory.ipynb
-        ↓
-01_schema_and_semantic_profiling.ipynb
-        ↓
-02_grain_keys_and_duplicates.ipynb
-        ↓
-03_relationships_and_join_coverage.ipynb
-        ↓
-04_temporal_audit.ipynb
-        ↓
-05_data_quality_audit.ipynb
-        ↓
-06_target_feasibility.ipynb
-07_m1_gate.ipynb
+00 → 01 → 02 → 03 → 04 → 05 → 06 → 07_m1_gate
+                                      │
+                                      └── M1 ✅ CLOSED
+
+10 → 11 → 12 → 13 → 14 → 15_m2_gate
+                         │
+                         └── M2 ✅ CLOSED
 ```
 
-> Algunos análisis realizan scans completos sobre CSV de varios GB. Esto es esperado durante la primera auditoría de gobernanza y puede ser intensivo en I/O.
+M1 y M2 se consideran **congelados**. No deben reejecutarse por rutina al iniciar M3. Solo se reabren si cambia una fuente, una regla canónica o un artefacto que invalide su evidencia.
 
-Una vez que exista Silver en Parquet, gran parte de estos análisis podrá ejecutarse de manera considerablemente más eficiente.
+El siguiente trabajo comienza en Gold con `20_target_engineering.ipynb` cuando se implemente M3.
+
+> Los primeros análisis Bronze realizan scans completos sobre CSV de varios GB. Silver ya materializa Parquet canónico para evitar repetir esos scans durante Gold.
 
 ---
 
@@ -903,23 +952,20 @@ Los notebooks generan evidencia persistente en lugar de depender únicamente de 
 
 ```text
 reports/
-├── profiling/
-│   ├── dataset_inventory.parquet
-│   ├── column_profile.parquet
-│   ├── key_analysis.parquet
-│   ├── join_analysis.parquet
-│   ├── temporal_profile.parquet
-│   ├── temporal_rules.parquet
-│   ├── target_feasibility_horizons.parquet
-│   ├── target_feasibility_diagnostics.parquet
-│   └── target_feasibility_by_year.parquet
-│
-└── quality/
-    ├── money_profile.parquet
-    └── quality_issue_register.parquet
+├── profiling/                 # evidencia M1
+├── quality/                   # evidencia M1
+└── silver/                    # validaciones y gate M2
+
+artifacts/manifests/           # lineage de componentes Silver
+
+docs/decisions/
+├── M1_GATE.md
+└── M2_GATE.md
 ```
 
-Estos artefactos se consideran **evidencia analítica generada**, no código fuente.
+M2 además materializa 12 artefactos canónicos bajo `data/silver/`; su catálogo y grain están documentados en `docs/data-dictionary/silver_m2_catalog.md`.
+
+Estos reportes y manifests se consideran **evidencia analítica generada**. Los artefactos de gate son parte del contrato de reproducibilidad del milestone y deben conservarse junto con la versión de código que los produjo.
 
 ---
 
@@ -977,29 +1023,30 @@ uv run mypy src
 
 ---
 
-# 16. Criterio de finalización de M1
+# 16. Gates y criterios de cierre
 
-M1 no termina porque los notebooks ejecuten sin error.
+Los milestones no terminan porque los notebooks ejecuten sin excepción. Terminan cuando existe evidencia persistida suficiente y el gate correspondiente aprueba todos los checks bloqueantes.
 
-Termina cuando existe evidencia suficiente para responder las preguntas metodológicas críticas.
+## M1 — cierre
 
-## Definition of Done
+`07_m1_gate.ipynb` cerró M1 con **19/19 checks bloqueantes**. La decisión autoritativa está en `docs/decisions/M1_GATE.md`.
 
-- [ ] Los siete snapshots Bronze están inventariados.
-- [ ] El schema físico y semántico está perfilado.
-- [ ] La granularidad de cada fuente está documentada.
-- [ ] Las claves candidatas han sido medidas.
-- [ ] Las relaciones han sido auditadas por coverage, multiplicidad y expansión.
-- [ ] La cobertura temporal está cuantificada.
-- [ ] Las reglas de orden temporal están auditadas.
-- [ ] Las columnas potencialmente mutables o con leakage están identificadas.
-- [ ] Existe un registro de problemas de calidad.
-- [ ] El candidato `t0` está respaldado por evidencia.
-- [ ] La viabilidad de `y_addition_180d` está cuantificada.
-- [ ] El censoring está medido.
-- [ ] Existe una decisión documentada: `GO` o `REDEFINE`.
+## M2 — cierre
 
-Solo después debe comenzar la construcción formal de Silver.
+`15_m2_gate.ipynb` cerró M2 con **10/10 checks bloqueantes**. El gate verificó:
+
+- checks bloqueantes de `10`–`14`;
+- 12 artefactos canónicos completos;
+- manifests de lineage;
+- schema `m2-silver-v1` consistente;
+- cero issues bloqueantes;
+- entity resolution auditada sin forzar matches ambiguos.
+
+La decisión autoritativa está en `docs/decisions/M2_GATE.md`.
+
+## Regla de transición a M3
+
+M3 puede comenzar sobre Silver cerrado, pero debe volver a validar **point-in-time correctness**. El cierre de M2 no autoriza automáticamente columnas como features ni congela la semántica final del target.
 
 ---
 
@@ -1024,49 +1071,51 @@ Target feasibility
 
 ## M2 — Silver / Canonical Data Model
 
-Objetivo:
+Objetivo alcanzado:
 
 ```text
 Bronze
    ↓
-typing
-normalization
-entity resolution
-quality rules
+typing + canonicalization + lineage
+entity resolution determinística
+quality gates
    ↓
-Silver
+Silver m2-silver-v1
 ```
 
-Entidades previstas:
+Resultados principales:
 
-```text
-contracts
-processes
-suppliers
-bidders
-additions
-payments
-sanctions
-```
+- 12 artefactos canónicos materializados;
+- Contracts, Processes, Suppliers, Bidders y Additions canonicalizados;
+- estado contractual mutable segregado;
+- relaciones canónicas sin join explosion;
+- entity resolution ambigua/no resuelta preservada explícitamente;
+- manifests y validación cruzada persistidos;
+- `15_m2_gate.ipynb`: **10/10 checks bloqueantes**.
 
-**Estado:** 🚧 IN PROGRESS.
+**Estado:** ✅ CLOSED.
 
-El primer componente implementado es `10_silver_contracts_processes.ipynb`, con lógica reusable en `src/argos/silver/` y configuración congelada en `configs/silver.toml`.
+Autoridad: `docs/decisions/M2_GATE.md`.
 
 ---
 
 ## M3 — Target & Gold Dataset
 
+**Estado:** ▶ READY — siguiente milestone.
+
 Objetivos:
 
 ```text
-target engineering
-temporal split
-EDA sobre train
+target engineering y semantic freeze
+temporal split design
+EDA exclusivamente sobre train
 point-in-time features
+historical aggregates as-of t0
 Gold dataset
-leakage audit
+leakage / PIT audit
 ```
+
+Entrada formal: `docs/M3_HANDOFF.md`.
 
 ---
 
@@ -1241,7 +1290,15 @@ documentación
 SQL
 ```
 
-No deben versionarse datasets masivos ni artefactos generados innecesariamente.
+No deben versionarse datasets masivos ni artefactos generados innecesariamente. Los artefactos pequeños de gobernanza que materializan decisiones de gate, manifests y especificaciones sí se conservan cuando forman parte del contrato de reproducibilidad.
+
+Checkpoint recomendado para el cierre actual:
+
+```bash
+git add .
+git commit -m "feat(silver): completa la capa canónica y cierra M2"
+git tag m2-cerrado
+```
 
 ---
 
@@ -1411,6 +1468,11 @@ antes que complejidad técnica.
 
 ## Gates automatizados
 
-`07_m1_gate.ipynb` cerró M1 con 19/19 checks bloqueantes. La decisión queda documentada en `docs/decisions/M1_GATE.md`.
+`07_m1_gate.ipynb` cerró M1 con **19/19 checks bloqueantes**. `15_m2_gate.ipynb` cerró M2 con **10/10 checks bloqueantes**. Las decisiones autoritativas están en:
 
-M2 seguirá el mismo patrón: cada notebook genera evidencia local y `15_m2_gate.ipynb` será la autoridad final para producir `M2 ✅ CLOSED`. El join directo `bidders.codigo_proveedor -> suppliers.codigo` permanece asignado a `13_entity_resolution.ipynb`; no se fuerza una correspondencia artificial durante la construcción temprana de Silver.
+```text
+docs/decisions/M1_GATE.md
+docs/decisions/M2_GATE.md
+```
+
+M2 preservó explícitamente la población no resuelta/ambigua de bidder→supplier en lugar de forzar correspondencias. M3 hereda esa incertidumbre y deberá congelar la semántica del target, diseñar el split temporal y aprobar un audit point-in-time antes de entrenar modelos.
