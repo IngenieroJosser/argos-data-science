@@ -1736,3 +1736,4 @@ docs/decisions/M3_GATE.md
 ```
 
 M3 validó empíricamente target, split y point-in-time correctness y materializó el model matrix auditado. M4 hereda de forma explícita la incertidumbre de entity resolution y el cambio temporal de prevalencia; ninguna de estas condiciones autoriza a modificar el conjunto TEST o a introducir información futura.
+
