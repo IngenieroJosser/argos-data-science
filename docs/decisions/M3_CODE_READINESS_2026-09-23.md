@@ -1,5 +1,7 @@
 # M3 — Code readiness review — 2026-09-23
 
+> **Nota de trazabilidad:** este documento registra el estado previo a la ejecución empírica. El estado vigente está supersedido por `M3_GATE.md`: M3 ✅ CLOSED.
+
 > **Estado de M3:** ▶ IN PROGRESS  
 > **Prerequisito:** M2 ✅ CLOSED  
 > **Gold schema:** `m3-gold-v1`

@@ -1,8 +1,8 @@
 # ARGOS — Formulación Analítica y Configuración del Workspace
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> **Versión:** 1.1  
-> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ IN PROGRESS  
+> **Versión:** 1.2  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ▶ READY  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1226,12 +1226,19 @@ Los notebooks deben consumir funciones de `src/argos/` en vez de acumular toda l
 
 # 27. CHECKPOINT ACTUAL RECOMENDADO
 
-M2 está formalmente cerrado. El checkpoint recomendado es:
+M3 está formalmente cerrado. El checkpoint recomendado es:
 
 ```bash
 git add .
-git commit -m "feat(silver): completa la capa canónica y cierra M2"
-git tag m2-cerrado
+git commit -m "feat(gold): completa la capa point-in-time y cierra M3"
+git tag m3-cerrado
+```
+
+La documentación de cierre puede persistirse en un commit separado si se desea mantener la historia Git más granular:
+
+```bash
+git add README.md docs/
+git commit -m "docs(gold): documenta el cierre de M3 y habilita M4"
 ```
 
 ---
@@ -1239,21 +1246,41 @@ git tag m2-cerrado
 # 28. MILESTONE ACTUAL
 
 ```text
-M3 — Gold / Point-in-Time Analytical Layer
+M4 — Modeling & Evaluation
 ```
 
-Prioridades de entrada:
+Estado de entrada:
 
 ```text
-[x] congelar la semántica V1 del target (`ADICION EN EL VALOR`, 180 días)
-[ ] construir labels con censoring explícito
-[ ] diseñar split temporal antes de EDA/modelado
-[ ] crear features únicamente con información <= t0
-[ ] auditar leakage y point-in-time correctness
-[ ] materializar Gold reproducible
-[ ] cerrar M3 con gate antes de Modeling
+[x] M1 cerrado
+[x] M2 cerrado
+[x] semantic freeze del target
+[x] labels con censoring explícito
+[x] split temporal congelado
+[x] EDA de decisiones restringido a TRAIN
+[x] contract features auditadas
+[x] historical features con history_timestamp < t0
+[x] competition features con publication_at <= t0
+[x] model matrix Gold materializado
+[x] point-in-time audit sin violaciones
+[x] M3 cerrado con 13/13 checks bloqueantes
 ```
 
-Contrato de entrada: `docs/M3_HANDOFF.md`. Runbook operativo: `docs/M3_RUNBOOK.md`.
+Contrato de entrada activo: `docs/M4_HANDOFF.md`.
 
-No se debe entrenar ningún modelo antes de completar el audit Gold point-in-time y el gate de M3.
+Prioridades M4:
+
+```text
+[ ] baseline de prevalencia/dummy
+[ ] heurísticas reproducibles
+[ ] Logistic Regression baseline
+[ ] boosting bajo validación temporal
+[ ] calibración y ranking bajo capacidad
+[ ] error analysis por segmentos
+[ ] ablation studies
+[ ] análisis de impacto operativo
+[ ] evaluación final sobre TEST congelado
+[ ] gate M4
+```
+
+El conjunto TEST 2025 no se utiliza para seleccionar features, modelos, hiperparámetros, calibradores o thresholds.

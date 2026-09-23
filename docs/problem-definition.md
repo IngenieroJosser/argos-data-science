@@ -3,8 +3,8 @@
 > **Documento de definición del problema**
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> Versión: 1.1  
-> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ IN PROGRESS
+> Versión: 1.2  
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ▶ READY
 
 ---
 
@@ -76,7 +76,7 @@ Definición V1 congelada en M3:
 
 > `t0 = fecha_de_firma` del contrato electrónico.
 
-M1 validó su cobertura y parseabilidad; M2 preservó el campo tipado en Silver; M3 lo utiliza como prediction timestamp para el primer dataset Gold.
+M1 validó su cobertura y parseabilidad; M2 preservó el campo tipado en Silver; M3 lo utilizó como prediction timestamp, construyó el dataset Gold y auditó su consistencia point-in-time.
 
 Toda variable utilizada por un modelo predictivo deberá satisfacer:
 
@@ -192,7 +192,7 @@ SUPPLIER
    +----------> CONTRACT
 ```
 
-Este modelo es una hipótesis inicial. Las cardinalidades y claves deberán descubrirse y verificarse durante Data Understanding.
+Este modelo comenzó como hipótesis de Data Understanding. M1 y M2 verificaron las relaciones y cardinalidades necesarias para V1 y materializaron relaciones canónicas para contracts, processes, suppliers, bidders y additions. `payments` y `sanctions` permanecen explícitamente diferidos del scope V1.
 
 ---
 
@@ -548,6 +548,8 @@ La versión 1 se considerará científicamente satisfactoria si:
 9. se documentan errores y segmentos problemáticos;
 10. todo experimento puede reconstruirse desde código y datos versionados.
 
+**Estado tras el cierre de M3:** los criterios 1–6 están materializados y auditados; la infraestructura de reproducibilidad para el criterio 10 está establecida mediante manifests, gates y configuración versionada. Los criterios 7–9 son responsabilidad central de M4 Modeling & Evaluation.
+
 ---
 
 ## 22. Fuera de alcance de la primera versión
@@ -568,23 +570,29 @@ Se incorporarán únicamente después de validar que el problema base, las etiqu
 
 ---
 
-## 23. Preguntas abiertas que deben resolverse durante Data Understanding
+## 23. Preguntas de Data Understanding — resolución actual
 
-- ¿Cuál es la mejor fecha para representar `t0`?
-- ¿Cuál es la clave más confiable entre proceso y contrato?
-- ¿Las adiciones poseen timestamp suficientemente confiable?
-- ¿Cómo se representa una modificación contractual?
-- ¿Existen contratos con múltiples proveedores?
-- ¿Cómo se representan consorcios/uniones temporales?
-- ¿Qué tan estable es el NIT?
-- ¿Existe información modificada retrospectivamente?
-- ¿Cuál es la cobertura temporal de cada dataset?
-- ¿Existen periodos con cambios abruptos de calidad?
-- ¿Qué porcentaje de contratos puede unirse correctamente entre datasets?
-- ¿Qué proporción del universo tiene seguimiento suficiente para crear las etiquetas?
-- ¿Cuál es la prevalencia del target por año?
-- ¿Hay segmentos para los cuales debería existir un modelo separado?
-- ¿Qué variables son realmente conocidas al momento `t0`?
+Las preguntas originales de Data Understanding se mantienen como trazabilidad, pero después de M1–M3 varias ya tienen una resolución operativa V1.
+
+| pregunta | estado V1 | resolución / tratamiento |
+|---|---|---|
+| ¿Cuál es la mejor fecha para representar `t0`? | RESUELTA V1 | `fecha_de_firma`; validada y utilizada por Gold |
+| ¿Cuál es la clave más confiable entre proceso y contrato? | RESUELTA V1 | `contracts.proceso_de_compra → processes.id_del_portafolio` |
+| ¿Las adiciones poseen timestamp suficientemente confiable? | RESUELTA V1 | `event_at` canónico validado; cutoff observado 2026-09-09 |
+| ¿Cómo se representa una modificación contractual? | RESUELTA V1 | Silver preserva tipos; target V1 usa exclusivamente `ADICION EN EL VALOR` |
+| ¿Existen contratos con múltiples proveedores? | ABIERTA / DOMINIO | no se fuerza una interpretación adicional en V1 |
+| ¿Cómo se representan consorcios/uniones temporales? | PARCIAL | se preservan atributos disponibles; entity resolution no fuerza identidades ambiguas |
+| ¿Qué tan estable es el NIT? | PARCIAL | resolución determinística solo cuando la evidencia es única; ambiguos permanecen explícitos |
+| ¿Existe información modificada retrospectivamente? | CONTROLADA V1 | campos snapshot/mutables fueron segregados y excluidos del model matrix |
+| ¿Cuál es la cobertura temporal de cada dataset? | PERFILADA | M1/M2 documentan cobertura; M3 congela el periodo analítico V1 |
+| ¿Existen periodos con cambios abruptos de calidad? | MONITOREAR | no bloqueó M3; M4 debe analizar drift y performance temporal |
+| ¿Qué porcentaje puede unirse correctamente entre datasets? | MEDIDO | relaciones canónicas y coberturas están persistidas en M2 |
+| ¿Qué proporción tiene seguimiento suficiente para labels? | RESUELTA V1 | 5,312,182 contratos elegibles para 180 días |
+| ¿Cuál es la prevalencia del target por año? | RESUELTA V1 | perfil anual persistido en `reports/gold/20_target_by_year.parquet` |
+| ¿Hay segmentos que requieran un modelo separado? | ABIERTA M4 | debe evaluarse mediante error analysis y estabilidad por segmento |
+| ¿Qué variables son conocidas en `t0`? | RESUELTA V1 | feature registry Gold de 41 features auditadas |
+
+La existencia de una resolución V1 no implica que la decisión sea universal o definitiva; cualquier cambio de target, snapshot o fuente exige revalidación.
 
 ---
 
