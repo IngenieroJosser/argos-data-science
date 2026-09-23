@@ -6,7 +6,7 @@
 
 ## Purpose
 
-M6 completes the V1 engineering roadmap. Post-M6 work is not an implicit M7 and must not silently change the frozen model lineage. The immediate objective is to operate ARGOS in shadow/human-review mode, collect prospective evidence and verify that data/model behavior remains observable and governable.
+M6 completes the V1 productionization milestone. The post-M6 operating rules below were later formalized as M7 and must not silently change the frozen model lineage. The objective is to operate ARGOS in shadow/human-review mode, collect prospective evidence and verify that data/model behavior remains observable and governable.
 
 ## Required operating rules
 
@@ -23,6 +23,13 @@ M6 completes the V1 engineering roadmap. Post-M6 work is not an implicit M7 and 
 
 The M6 replay persisted 14 alerts, including 6 `high`; score PSI is 1.089164. This is sufficient to keep deployment promotion blocked under the frozen M6 policy.
 
-## What would justify a new milestone
+## Formal transition to M7
 
-A future milestone should be explicitly scoped before implementation. Examples include prospective shadow validation over new months, model V2 retraining with new holdout governance, cloud deployment/managed orchestration, or institutional workflow integration. None is implicitly authorized by M6 closure.
+The next milestone was explicitly scoped as `M7 — Prospective Validation & Operational Evaluation`. It collects future evidence under a preregistered protocol. Model V2 retraining, cloud deployment changes or institutional workflow integration remain separate changes and are not implicitly authorized by M6 closure.
+
+
+---
+
+## M7 — Prospective Validation
+
+The formal next milestone is `M7 — Prospective Validation & Operational Evaluation`. See `docs/M7_RUNBOOK.md`. M6 artifacts remain frozen; M7 collects future evidence rather than rewriting M6.

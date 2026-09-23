@@ -9,6 +9,9 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 > **ARGOS no clasifica contratos, proveedores o entidades como corruptos o fraudulentos.**  
 > Una predicción o anomalía representa una **señal analítica o prioridad de revisión**, no una acusación ni una conclusión jurídica.
 
+
+**Estado del roadmap V1:** M1–M6 `CLOSED`; **M7:** `OPEN — Prospective Validation & Operational Evaluation`.
+
 ---
 
 ## Tabla de contenidos
@@ -33,6 +36,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [18. Riesgos metodológicos](#18-riesgos-metodológicos)
 - [19. Convenciones de trabajo](#19-convenciones-de-trabajo)
 - [20. Fuentes oficiales](#20-fuentes-oficiales)
+- [21. M7 — Prospective Validation & Operational Evaluation](#21-m7--prospective-validation--operational-evaluation)
 
 ---
 
@@ -1513,9 +1517,20 @@ La automatización puede abarcar ingestión, scoring, monitoreo y generación de
 
 El contrato de entrada `docs/M6_HANDOFF.md` ya fue consumido. El protocolo ejecutado está definido en `docs/M6_RUNBOOK.md` y `configs/production.toml`; la decisión formal vive en `docs/decisions/M6_GATE.md` y la revisión senior en `docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md`.
 
-M6 cierra la infraestructura operacional V1, pero **no levanta el bloqueo de promoción**: el replay produjo 6 alertas `high` y el estado de deployment conserva `promotion_blocked=true`. El trabajo posterior a M6 es operación shadow/human-review, monitoreo prospectivo y acumulación de nueva evidencia; no se declara un M7 hasta formalizar un nuevo alcance.
+M6 cierra la infraestructura operacional V1, pero **no levanta el bloqueo de promoción**: el replay produjo 6 alertas `high` y el estado de deployment conserva `promotion_blocked=true`. Ese estado es el punto de partida congelado de **M7 — Prospective Validation & Operational Evaluation**, que acumula evidencia futura sin reabrir ni reescribir M6.
 
 ---
+
+---
+
+## M7 — Prospective Validation & Operational Evaluation
+
+**Estado:** ⏳ OPEN — protocolo prospectivo inicializado.
+
+M7 evalúa el sistema V1 congelado sobre evidencia que todavía no existía al momento de cerrar M6. Requiere batches posteriores al freeze, outcomes maduros a 180 días, evidencia de revisión humana, monitoring longitudinal y una decisión operacional gobernada.
+
+Autoridad de inicio: `docs/decisions/M7_START_2026-09-23.md`. Protocolo: `docs/M7_RUNBOOK.md`.
+
 
 # 18. Riesgos metodológicos
 
@@ -1815,3 +1830,44 @@ docs/decisions/M3_GATE.md
 ```
 
 M3 validó empíricamente target, split y point-in-time correctness y materializó el model matrix auditado. M4 hereda de forma explícita la incertidumbre de entity resolution y el cambio temporal de prevalencia; ninguna de estas condiciones autoriza a modificar el conjunto TEST o a introducir información futura.
+
+
+---
+
+# 21. M7 — Prospective Validation & Operational Evaluation
+
+M1–M6 están formalmente cerrados. ARGOS entra ahora en su séptimo y último milestone de V1:
+
+```text
+M7 — Prospective Validation & Operational Evaluation
+Status: OPEN / protocol initialization
+Schema: m7-prospective-v2
+```
+
+M7 evalúa si el **ARGOS V1 congelado** conserva señal útil, calibrada y operativamente manejable en cohorts que ocurren únicamente después de congelar el protocolo prospectivo.
+
+El protocolo se congela el **2026-09-23** y los cohorts M7 comienzan el **2026-09-24**. TEST 2025 y OOT 2026 permanecen consumidos y no pueden reutilizarse para selección o tuning.
+
+The sequence is:
+
+```text
+60 protocol freeze
+   ↓
+61 future shadow cohorts
+   ↓
+62 180-day outcome maturation + label lock
+   ↓
+63 prospective statistical performance
+   ↓
+64 human-review operational utility
+   ↓
+65 longitudinal monitoring + incidents
+   ↓
+66 governed operational decision
+   ↓
+67 M7 gate
+```
+
+M7 no puede cerrarse inmediatamente: el target exige 180 días completos de follow-up, un buffer conservador de maduración de outcomes y múltiples cohorts genuinamente prospectivos. Un cambio de modelo motivado por M7 crea una nueva versión y requiere un nuevo holdout futuro.
+
+ARGOS permanece **batch-first, shadow y human-in-the-loop**. Ningún resultado de M7 promueve automáticamente el modelo ni convierte un risk score en una conclusión jurídica o de corrupción/fraude.

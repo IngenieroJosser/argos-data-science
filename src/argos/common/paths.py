@@ -93,5 +93,8 @@ class ProjectPaths:
             self.root / "artifacts" / "models" / "m5",
             self.root / "data" / "m5",
             self.root / "artifacts" / "manifests",
+            self.reports / "prospective",
+            self.root / "artifacts" / "prospective",
+            self.root / "artifacts" / "prospective" / "label_locks",
         ]:
             path.mkdir(parents=True, exist_ok=True)

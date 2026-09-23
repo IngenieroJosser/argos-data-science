@@ -1,0 +1,85 @@
+# M7 — Prospective Validation & Operational Evaluation
+# Frozen before any post-freeze outcome evidence is observed.
+
+[m7]
+schema_version = "m7-prospective-v2"
+model_version = "argos-v1"
+benchmark_gold_schema = "m3-gold-v1"
+benchmark_model_schema = "m4-model-v1"
+benchmark_robustness_schema = "m5-robustness-v1"
+benchmark_production_schema = "m6-production-v1"
+protocol_freeze_date = "2026-09-23"
+prospective_start = "2026-09-24"
+target_horizon_days = 180
+operating_mode = "shadow_human_review"
+
+[cohorts]
+frequency = "monthly"
+min_scoring_batches = 3
+min_shadow_days = 90
+min_matured_cohorts = 2
+min_matured_rows = 50000
+min_matured_positives = 100
+observation_end_source = "silver_addition_events_max_event_time"
+outcome_reporting_lag_days = 30
+
+[outcomes]
+target_column = "y_addition_180d"
+id_column = "contract_id"
+t0_column = "t0"
+event_type = "ADICION EN EL VALOR"
+event_time_column = "event_at"
+window_open = "exclusive"
+window_close = "inclusive"
+require_full_followup = true
+label_lock_root = "artifacts/prospective/label_locks"
+
+[performance]
+operational_fraction = 0.01
+min_pr_auc_over_prevalence = 1.0
+min_lift_at_operational_k = 1.0
+max_ece = 0.03
+max_brier_relative_to_prevalence_baseline = 1.0
+bootstrap_replicates = 500
+confidence_level = 0.95
+
+[operations]
+review_queue_root = "data/production/review_queues"
+scored_batch_root = "data/production/scored_batches"
+min_review_completion_rate = 0.80
+max_p95_review_latency_hours = 168.0
+require_audit_chain = true
+require_zero_critical_incidents_for_pilot = true
+terminal_review_statuses = ["reviewed", "dismissed", "escalated"]
+
+[monitoring]
+score_psi_warning = 0.10
+score_psi_high = 0.25
+feature_psi_warning = 0.10
+feature_psi_high = 0.25
+max_high_alert_fraction = 0.20
+
+[governance]
+consumed_test_year = 2025
+consumed_oot_year = 2026
+allow_reuse_consumed_holdouts_for_selection = false
+human_review_required = true
+automatic_production_promotion = false
+allowed_decisions = ["continue_shadow", "recalibrate", "retrain_v2", "controlled_pilot"]
+new_model_requires_new_future_holdout = true
+
+[artifacts]
+protocol_manifest = "artifacts/manifests/m7_protocol_freeze.json"
+cohort_registry = "artifacts/prospective/cohort_registry.parquet"
+label_lock_registry = "artifacts/prospective/label_lock_registry.parquet"
+decision_record = "artifacts/prospective/m7_decision_record.json"
+incident_register = "artifacts/prospective/incident_register.parquet"
+
+[acceptance]
+require_m6_closed = true
+require_frozen_protocol_hashes = true
+require_future_only_cohorts = true
+require_matured_outcome_evaluation = true
+require_human_review_evidence = true
+require_longitudinal_monitoring = true
+require_explicit_decision_record = true

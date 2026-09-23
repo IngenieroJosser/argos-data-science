@@ -87,7 +87,7 @@ Precision@1%    26.4155%
 
 `docs/decisions/M6_GATE.md` es la decisión vigente del cierre M6 y `docs/decisions/M6_CLOSURE_REVIEW_2026-09-23.md` documenta la reconciliación senior de la evidencia final. La decisión previa `M6 ❌ OPEN` se conserva como artefacto histórico pre-reconciliación. TEST 2025 y OOT 2026 permanecen consumidos para ARGOS V1.
 
-No se declara un M7 por defecto. El estado posterior está definido en `POST_M6_OPERATIONS.md`: shadow/human-review, monitoreo prospectivo y nueva evidencia antes de cualquier cambio de lineage o promoción.
+Ese estado posterior ya fue formalizado como `M7 — Prospective Validation & Operational Evaluation`. `POST_M6_OPERATIONS.md` conserva las reglas de shadow/human-review que M7 hereda sin modificar el lineage congelado de M6.
 
 ## M6 cerrado / operación shadow controlada
 
@@ -95,3 +95,12 @@ M5 cerró con **16/16 checks bloqueantes** y M6 cerró la operacionalización co
 
 El status final es `OPERATIONALLY_READY_PROMOTION_BLOCKED`: la infraestructura está lista para operación shadow/human-review, pero las 6 alertas `high` del replay mantienen `promotion_blocked=true`. Esto no es un fallo del milestone; es el mecanismo de gobernanza funcionando como fue diseñado. No existe autorización de promoción automática ni de decisiones jurídicas autónomas.
 
+
+
+## M7 — Prospective Validation & Operational Evaluation
+
+- `M7_RUNBOOK.md` — protocolo de ejecución y requisitos de evidencia.
+- `M7_HANDOFF.md` — handoff congelado desde M6.
+- `decisions/M7_START_2026-09-23.md` — decisión formal de inicio.
+- `decisions/M7_GATE.md` — estado vigente del gate; permanece abierto hasta madurar evidencia prospectiva.
+- `data-dictionary/m7_prospective_catalog.md` — contrato de artefactos M7.
