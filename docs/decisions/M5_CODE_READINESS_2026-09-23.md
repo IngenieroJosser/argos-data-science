@@ -1,5 +1,7 @@
 # M5 Code Readiness — 2026-09-23
 
+> **Historical status:** superseded by `M5_GATE.md` after empirical execution. M5 is now ✅ CLOSED.
+
 This document records **code readiness**, not empirical M5 closure.
 
 The repository contains:
@@ -22,4 +24,4 @@ scripts/evaluate_m5_gate.py
 
 The design deliberately preserves M4 artifacts and prevents TEST 2025 from becoming a development selection set again. The pipeline requires an explicit `--consume-fresh-oot` flag before 2026 OOT evaluation.
 
-M5 remains **IN PROGRESS** until the real project data executes notebooks 40–47 and the gate closes.
+At the time of this readiness review, M5 was still pending empirical execution. That condition was later satisfied: notebooks 40–47 executed and `M5_GATE.md` closed the milestone with 16/16 blocking checks.

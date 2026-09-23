@@ -1,7 +1,7 @@
 # M5 Robustness Artifact Catalog
 
 > **Schema:** `m5-robustness-v1`  
-> **State:** expected artifacts while M5 is IN PROGRESS.
+> **State:** ✅ materialized and validated — M5 CLOSED.
 
 M5 does not replace M3 Gold or M4 model artifacts. It adds evidence around the frozen V1 benchmark.
 
@@ -21,3 +21,10 @@ Every component also persists a `*_validation.parquet` report and a manifest und
 ## Holdout semantics
 
 `data/m5/fresh_oot_2026.parquet` is not a new training matrix. It is a final evaluation cohort for the frozen V1 model. It must not be merged back into training/selection during M5.
+
+
+## Estado de cierre
+
+Todos los componentes requeridos por el gate fueron materializados. `docs/decisions/M5_GATE.md` verificó 14 reportes obligatorios, manifests completos y schema `m5-robustness-v1` consistente.
+
+El fresh OOT 2026 contiene 529,054 contratos plenamente observables entre 2026-01-01 y 2026-03-13. Este holdout ya está consumido para ARGOS V1 y no debe incorporarse retroactivamente a selección o tuning.

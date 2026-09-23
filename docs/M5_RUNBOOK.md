@@ -1,19 +1,22 @@
 # ARGOS — M5 Runbook
 
 > **Milestone:** M5 — Advanced Data Science & Robustness  
-> **Estado:** ▶ IN PROGRESS  
-> **Entrada autoritativa:** `docs/M5_HANDOFF.md`  
-> **Schema:** `m5-robustness-v1`
+> **Estado:** ✅ CLOSED — 16/16 checks bloqueantes  
+> **Schema:** `m5-robustness-v1`  
+> **Autoridad de cierre:** `docs/decisions/M5_GATE.md`
 
-## 1. Objetivo
+## 1. Objetivo y resultado
 
-M5 fortalece la evidencia alrededor del **ARGOS V1 congelado**. No parte de cero y no convierte TEST 2025 nuevamente en un conjunto de selección.
+M5 fortaleció la evidencia alrededor del **ARGOS V1 congelado** sin reabrir TEST 2025 para selección. El milestone evaluó estabilidad temporal, explicabilidad, incertidumbre, drift, calibración, utilidad incremental de familias y un nuevo holdout out-of-time de 2026.
 
-La pregunta de M5 es:
+Resultado formal:
 
-> ¿El comportamiento predictivo, el ranking, la calibración y las explicaciones de ARGOS V1 se sostienen bajo protocolos temporales más exigentes y un nuevo holdout posterior, con lineage y monitoreo suficientes para una futura evaluación de producción?
+```text
+M5 ✅ CLOSED
+Blocking checks: 16/16
+```
 
-M5 no autoriza producción automáticamente y no modifica silenciosamente el modelo seleccionado en M4.
+El cierre significa que la evidencia de robustez prevista por M5 fue materializada y auditada. **No significa autorización automática de producción.**
 
 ## 2. Contratos congelados
 
@@ -25,67 +28,65 @@ target            y_addition_180d
 V1 model          hist_gradient_boosting
 calibration       isotonic
 TEST 2025         consumed historical benchmark
-fresh OOT         eligible 2026 partial-year cohort
+fresh OOT 2026    consumed final M5 holdout
 ranking tie-break calibrated_score DESC -> raw_score DESC -> contract_id ASC
 ```
 
-## 3. Orden obligatorio
+TEST 2025 y fresh OOT 2026 ya no pueden utilizarse como holdouts vírgenes para seleccionar una futura versión del modelo.
+
+## 3. Ejecución cerrada
+
+| Notebook | Propósito | Checks bloqueantes | Estado |
+|---|---|---:|---|
+| `40_temporal_backtesting.ipynb` | rolling-origin 2021–2024 | 4/4 | PASS |
+| `41_explainability.ipynb` | permutation importance + sensibilidad local | 5/5 | PASS |
+| `42_uncertainty_and_ranking_stability.ipynb` | bootstrap temporal + desempate determinista | 5/5 | PASS |
+| `43_drift_and_calibration_monitoring.ipynb` | drift y calibración de cola | 4/4 | PASS |
+| `44_feature_family_revalidation.ipynb` | revalidación justa de familias | 4/4 | PASS |
+| `45_fresh_oot_2026.ipynb` | evaluación final OOT 2026 | 7/7 | PASS |
+| `46_preproduction_readiness.ipynb` | monitoring/robustness evidence | 7/7 | PASS |
+| `47_m5_gate.ipynb` | gate formal | 16/16 | CLOSED |
+
+## 4. Temporal backtesting
+
+Rolling-origin sobre 2021–2024, sin usar TEST 2025 como criterio de selección:
+
+| Periodo | PR-AUC | ROC-AUC | Prevalencia |
+|---|---:|---:|---:|
+| 2021 | 0.048415 | 0.752242 | 1.0333% |
+| 2022 | 0.072170 | 0.786582 | 1.3073% |
+| 2023 | 0.094661 | 0.813049 | 1.8128% |
+| 2024 | 0.060340 | 0.834935 | 0.9656% |
+
+La variabilidad confirma que el desempeño es temporalmente dependiente y debe monitorearse por cohorte.
+
+## 5. Explainability
+
+Se materializaron permutation importance global, importancia por familia y sensibilidad local. Las señales globales más importantes incluyen `codigo_de_categoria_principal`, `t0_month`, `prior_entity_contract_count`, `justificacion_modalidad_de_contratacion` y `prior_supplier_entity_addition_event_count`.
+
+Estas explicaciones representan **sensibilidad predictiva**, no causalidad.
+
+## 6. Incertidumbre y ranking
+
+Se ejecutó calendar-week block bootstrap con 200 réplicas y nivel de confianza 95%. Para el operating point del 1%, Lift@K fue 17.929 con intervalo `[12.130, 22.940]` en el protocolo de desarrollo.
+
+El ranking operacional queda congelado como:
 
 ```text
-40_temporal_backtesting.ipynb
-41_explainability.ipynb
-42_uncertainty_and_ranking_stability.ipynb
-43_drift_and_calibration_monitoring.ipynb
-44_feature_family_revalidation.ipynb
-45_fresh_oot_2026.ipynb
-46_preproduction_readiness.ipynb
-47_m5_gate.ipynb
+1. calibrated_score DESC
+2. raw_score DESC
+3. contract_id ASC
 ```
 
-No ejecutar `45` antes de revisar que `40–44` estén aprobados. `45` consume el primer holdout post-M4 que no participó en selección.
+Esto elimina dependencia accidental del orden físico frente a plateaus del calibrador isotónico.
 
-## 4. Notebook 40 — Temporal backtesting
+## 7. Drift y calibración
 
-Rolling-origin sobre años de desarrollo `2021–2024` con la receta HGB congelada y un presupuesto uniforme. Se evalúan discriminación y ranking. 2025 queda excluido.
+M5 encontró **3 pares feature-period con drift alto**. El hallazgo no invalida automáticamente el modelo, pero se convierte en requisito de monitoreo. El contrato operativo persiste umbrales para PSI, TVD categórico, score shift, prevalencia, calibración de cola, Lift@K y missingness.
 
-Salidas:
+## 8. Feature-family revalidation
 
-```text
-reports/robustness/40_backtest_metrics.parquet
-reports/robustness/40_backtest_ranking.parquet
-reports/robustness/40_backtest_folds.parquet
-reports/robustness/40_validation.parquet
-artifacts/manifests/m5_temporal_backtesting.json
-```
-
-## 5. Notebook 41 — Explainability
-
-Materializa:
-
-- permutation importance global por feature;
-- resumen por familia;
-- sensibilidad local por sustitución de una feature hacia un valor de referencia.
-
-La sensibilidad local describe dependencia predictiva, no causalidad.
-
-## 6. Notebook 42 — Uncertainty y ranking
-
-Usa calendar-week block bootstrap sobre VALIDATION H2 para persistir intervalos de confianza de métricas principales. También congela un desempate determinístico frente a plateaus de calibración isotónica.
-
-## 7. Notebook 43 — Drift y calibración
-
-Monitorea:
-
-- PSI de features numéricas;
-- total variation distance y categorías nuevas en features categóricas;
-- drift de scores;
-- calibración explícita en la cola superior del ranking.
-
-TEST 2025 se usa aquí solo como benchmark histórico ya consumido, nunca para selección.
-
-## 8. Notebook 44 — Feature-family revalidation
-
-Compara en rolling folds, con mismo algoritmo, muestra y presupuesto:
+Se compararon de forma homogénea:
 
 ```text
 contract
@@ -93,61 +94,68 @@ contract + historical
 all
 ```
 
-La diferencia `all - contract_historical` cuantifica de manera explícita el valor incremental de competition features. El resultado es diagnóstico y no reemplaza automáticamente el modelo V1.
+La evidencia no justifica asumir que la familia completa domina de manera estable. Las features de competencia permanecen útiles como hipótesis analítica, pero su valor incremental debe seguir siendo demostrado antes de promover cambios de modelo.
 
-## 9. Notebook 45 — Fresh OOT 2026
+## 9. Fresh OOT 2026
 
-Construye desde Gold los contratos de 2026 con horizonte completo de 180 días y los puntúa con el **modelo y calibrador exactos congelados en M4**.
+La cohorte final se derivó por observabilidad completa del horizonte de 180 días:
 
-El rango temporal real se deriva de observabilidad. Con el snapshot actual, el extremo superior esperado está alrededor de marzo de 2026; por ello el holdout es partial-year y tiene limitación estacional explícita.
+```text
+cohort_start  2026-01-01
+cohort_end    2026-03-13
+rows          529,054
+positives       7,255
+prevalence      1.3713%
+PR-AUC          0.053274
+ROC-AUC         0.744544
+Brier           0.013238
+ECE             0.003093
+Precision@1%    8.5806%
+Recall@1%       6.2578%
+Lift@1%         6.257x
+```
 
-Una vez consumido, este holdout también deja de ser virgen para futuros ciclos de selección.
+El OOT confirma señal por encima de revisión aleatoria, pero evidencia degradación material frente al TEST 2025. Además, es un holdout **partial-year** y no representa estacionalmente un año calendario completo.
 
-## 10. Notebook 46 — Pre-production evidence
+## 10. Evidencia preproducción
 
-Genera:
+M5 generó:
 
 ```text
 docs/models/ARGOS_V1_ROBUSTNESS_CARD.md
 docs/monitoring/ARGOS_V1_MONITORING_SPEC.md
 ```
 
-El monitoring spec congela thresholds de drift, score shift, calibración de cola, lift y missingness. `production_authorized=false` permanece explícito.
+El manifest de preproducción conserva `production_authorized=false`. Esto es correcto: M5 valida evidencia; la operacionalización pertenece a M6.
 
-## 11. Notebook 47 — Gate
+## 11. Gate y gobernanza
 
-El gate exige:
+`47_m5_gate.ipynb` verificó, entre otros:
 
 - M4 previamente cerrado;
-- 40–46 con checks bloqueantes aprobados;
-- reportes y manifests completos;
-- schema `m5-robustness-v1` consistente;
+- todos los checks bloqueantes `40–46`;
+- 14 reportes M5 obligatorios y manifests completos;
+- consistencia `m5-robustness-v1`;
 - TEST 2025 no reutilizado para selección;
-- fresh OOT gobernado y sin reselección posterior;
+- fresh OOT 2026 consumido bajo V1 congelado y sin reselección;
 - hashes del V1 intactos;
 - robustness card y monitoring spec persistidos;
-- producción no auto-autorizada.
+- ausencia de autorización automática de producción.
 
-Solo entonces puede persistirse `docs/decisions/M5_GATE.md` como CLOSED.
+## 12. Qué queda congelado
 
-## 12. Pipeline
+A partir del cierre:
 
-El pipeline incluye un freno deliberado:
-
-```bash
-uv run python pipelines/run_robustness_m5.py
+```text
+M5 notebooks/results      frozen salvo bug documentado
+TEST 2025                 consumed
+fresh OOT 2026            consumed
+ARGOS V1                  historical benchmark
+monitoring contract       input obligatorio para M6
 ```
 
-ejecuta `40–44` y se detiene **antes** de consumir 2026.
+Una futura V2 que use lo aprendido en M5 necesita un nuevo holdout temporal posterior para sostener una nueva afirmación final de generalización.
 
-Después de revisar esa evidencia, el consumo explícito requiere:
+## 13. Siguiente milestone
 
-```bash
-uv run python pipelines/run_robustness_m5.py --consume-fresh-oot
-```
-
-Esto evita que un comando rutinario consuma accidentalmente el holdout final.
-
-## 13. Interpretación
-
-M5 es una fase de robustez y gobernanza del modelo V1. Complejidad algorítmica adicional —CatBoost/LightGBM/XGBoost, NLP, supervivencia, grafos o anomalías— no se promueve por defecto. Cualquier experimento avanzado posterior debe respetar los holdouts ya consumidos y demostrar valor incremental bajo un protocolo temporal versionado.
+M6 es **Productionization & MLOps**. Su objetivo es operacionalizar scoring y priorización con observabilidad, reproducibilidad, rollback, seguridad y revisión humana. No persigue decisiones legales autónomas. Véase `docs/M6_HANDOFF.md`.

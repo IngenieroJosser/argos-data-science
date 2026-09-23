@@ -1,7 +1,7 @@
 # ARGOS V1 — Monitoring Specification
 
 > **M5 schema:** `m5-robustness-v1`  
-> **Purpose:** operational monitoring contract; it does not authorize autonomous decisions.
+> **Purpose:** frozen monitoring contract produced by M5 and consumed by M6; it does not authorize autonomous legal or enforcement decisions.
 
 ## Deterministic ranking
 
@@ -39,3 +39,10 @@ This order must be used whenever top-K metrics or review queues are materialized
 ## Governance
 
 TEST 2025 remains a consumed historical benchmark. The 2026 fresh OOT cohort becomes consumed after notebook 45. Any future model selection requires development windows that exclude both final-evaluation cohorts, and any new generalization claim requires a later untouched holdout.
+
+
+## M6 operationalization requirement
+
+M6 must implement these checks as executable monitoring rather than documentation-only thresholds. A deployment must define ownership, cadence, alert routing, persistence, rollback/pause behavior and audit evidence for each required signal.
+
+Automated scoring and queue generation are compatible with this contract; autonomous sanctions, eligibility decisions, corruption/fraud determinations or other legal conclusions are not.

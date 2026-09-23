@@ -3,7 +3,7 @@
 > **Origen:** M4 — Modeling & Evaluation  
 > **Estado de origen:** ✅ CLOSED — 14/14 checks bloqueantes  
 > **Destino:** M5 — Advanced Data Science & Robustness  
-> **Estado de destino:** ▶ IN PROGRESS — implementation package prepared; empirical execution pending  
+> **Estado de destino:** ✅ CLOSED — 16/16 checks bloqueantes  
 > **Modelo de referencia:** ARGOS V1 — `hist_gradient_boosting + isotonic`
 
 ## 1. Propósito
@@ -151,3 +151,8 @@ El protocolo activo está implementado en `docs/M5_RUNBOOK.md` y notebooks `40�
 ## 10. Principio
 
 > Complejidad adicional solo entra en ARGOS si aporta evidencia incremental bajo un protocolo temporal más fuerte que el utilizado para crearla.
+
+
+## 11. Cierre del handoff
+
+Este handoff fue consumido completamente. M5 cerró mediante `docs/decisions/M5_GATE.md`; la interpretación senior está en `docs/decisions/M5_CLOSURE_REVIEW_2026-09-23.md`. El siguiente contrato activo es `docs/M6_HANDOFF.md`.

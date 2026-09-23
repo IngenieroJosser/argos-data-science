@@ -7,7 +7,8 @@ M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED
 M2 — Silver / Canonical Data Model                    ✅ CLOSED
 M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED
 M4 — Modeling & Evaluation                            ✅ CLOSED
-M5 — Advanced Data Science & Robustness               ▶ IN PROGRESS
+M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
+M6 — Productionization & MLOps                         ▶ READY
 ```
 
 La autoridad operativa de cada milestone es su gate persistido. Los documentos de inicio/readiness se conservan como evidencia histórica y no sustituyen las decisiones de cierre posteriores.
@@ -28,11 +29,16 @@ La autoridad operativa de cada milestone es su gate persistido. Los documentos d
 | `decisions/M4_GATE.md` | decisión computable de cierre de M4 — 14/14 |
 | `decisions/M4_CLOSURE_REVIEW_2026-09-23.md` | revisión senior de validez, resultados y deuda transportada |
 | `models/ARGOS_V1_MODEL_CARD.md` | ficha del modelo V1 finalmente evaluado |
-| `M5_HANDOFF.md` | contrato de entrada a Advanced Data Science & Robustness |
-| `M5_RUNBOOK.md` | protocolo activo de robustez, holdout 2026 y gate M5 |
+| `M5_HANDOFF.md` | handoff histórico M4→M5, ya consumido |
+| `M5_RUNBOOK.md` | protocolo ejecutado y evidencia de cierre de robustez M5 |
 | `decisions/M5_START_2026-09-23.md` | decisión formal de inicio de M5 |
 | `decisions/M5_EVALUATION_GOVERNANCE_2026-09-23.md` | política de TEST 2025 consumido y fresh OOT 2026 reservado |
-| `data-dictionary/m5_robustness_catalog.md` | catálogo esperado de artefactos M5 |
+| `data-dictionary/m5_robustness_catalog.md` | catálogo materializado de artefactos M5 |
+| `decisions/M5_GATE.md` | decisión computable de cierre M5 — 16/16 |
+| `decisions/M5_CLOSURE_REVIEW_2026-09-23.md` | revisión senior del cierre, limitaciones y deuda transportada |
+| `models/ARGOS_V1_ROBUSTNESS_CARD.md` | evidencia empírica de robustez del V1 congelado |
+| `monitoring/ARGOS_V1_MONITORING_SPEC.md` | contrato de monitoreo que debe operacionalizar M6 |
+| `M6_HANDOFF.md` | contrato de entrada a Productionization & MLOps |
 
 ## Evidencia histórica preservada
 
@@ -71,8 +77,11 @@ Precision@1%    26.4155%
 
 ## Regla de precedencia y siguiente fase
 
-`docs/decisions/M4_GATE.md` es la autoridad del cierre M4. La revisión posterior no cambia los artefactos del experimento; documenta sus limitaciones. M5 no puede utilizar TEST 2025 para seleccionar mejoras. Una nueva evaluación final requiere un holdout temporal posterior no usado durante desarrollo.
+`docs/decisions/M5_GATE.md` es la autoridad computable del cierre M5. `docs/decisions/M5_CLOSURE_REVIEW_2026-09-23.md` documenta la interpretación profesional de la evidencia y las restricciones que pasan a M6. TEST 2025 y el fresh OOT 2026 quedan consumidos para ARGOS V1.
 
-## M5 activo
+## M5 cerrado / M6 preparado
 
-M5 se ejecuta en orden `40–47`. TEST 2025 permanece consumido. El pipeline no consume el fresh OOT 2026 salvo autorización explícita con `--consume-fresh-oot`. El cierre de M5 no autoriza producción automáticamente.
+M5 cerró con **16/16 checks bloqueantes**. El V1 conserva lineage intacto, cuenta con backtesting temporal, explicabilidad, incertidumbre, drift/calibration monitoring, revalidación de familias y fresh OOT posterior a 2025.
+
+El cierre no autoriza por sí solo un despliegue productivo. M6 debe convertir el contrato de monitoreo y gobernanza en una operación reproducible, observable, reversible y human-in-the-loop. La entrada está definida en `docs/M6_HANDOFF.md`.
+

@@ -475,10 +475,10 @@ argos-code/
 
 # 8. Estado actual del proyecto
 
-ARGOS completó y cerró formalmente su primer experimento predictivo V1 sobre la capa Gold point-in-time. El milestone activo es:
+ARGOS completó formalmente la validación de robustez de ARGOS V1. El milestone activo queda preparado para:
 
 ```text
-M5 — Advanced Data Science & Robustness
+M6 — Productionization & MLOps
 ```
 
 Estado de milestones:
@@ -488,7 +488,8 @@ M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED — 19/19
 M2 — Silver / Canonical Data Model                    ✅ CLOSED — 10/10
 M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED — 13/13
 M4 — Modeling & Evaluation                            ✅ CLOSED — 14/14
-M5 — Advanced Data Science & Robustness               ▶ IN PROGRESS
+M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
+M6 — Productionization & MLOps                         ▶ READY
 ```
 
 M4 quedó cerrado por `37_m4_gate.ipynb` con **14/14 checks bloqueantes aprobados**. El gate verificó la cadena completa `30`–`36`, presencia de reportes y manifests, consistencia de schema `m4-model-v1`, aislamiento del conjunto TEST, hashes del modelo/calibrador congelados antes de TEST y persistencia de la model card.
@@ -533,6 +534,14 @@ El cierre de M4 valida un **experimento predictivo V1 reproducible y temporalmen
 - la calibración isotónica introduce empates de score; antes de operación debe congelarse un desempate explícito (`calibrated_score`, luego `raw_score`, luego `contract_id`) y medirse la sensibilidad top-K;
 - los artefactos `joblib` deben ejecutarse con un runtime versionado compatible con el lock que los produjo.
 
+### Interpretación profesional del cierre M5
+
+M5 resolvió las obligaciones de robustez previstas para ARGOS V1 y cerró con **16/16 checks bloqueantes**. El fresh OOT 2026, evaluado con el modelo/calibrador congelados y sin reselección posterior, contiene 529,054 contratos, prevalencia 1.3713%, PR-AUC 0.053274, ROC-AUC 0.744544 y Lift@1% 6.257x.
+
+La evidencia confirma capacidad de priorización por encima de random fuera del periodo usado en M4, pero también muestra degradación temporal material respecto a TEST 2025. M5 no oculta ese resultado: lo convierte en requisito explícito de monitoreo y gobernanza para M6. El OOT 2026 es además partial-year (`2026-01-01` a `2026-03-13`), por lo que no soporta una afirmación de estabilidad anual completa.
+
+M5 también dejó persistidos explainability, incertidumbre mediante block bootstrap, drift/calibration monitoring, revalidación de familias, ranking determinista, robustness card y monitoring spec. TEST 2025 y OOT 2026 quedan consumidos para ARGOS V1.
+
 Documentos de autoridad:
 
 ```text
@@ -542,7 +551,11 @@ docs/decisions/M3_GATE.md
 docs/decisions/M4_GATE.md
 docs/decisions/M4_CLOSURE_REVIEW_2026-09-23.md
 docs/models/ARGOS_V1_MODEL_CARD.md
-docs/M5_HANDOFF.md
+docs/decisions/M5_GATE.md
+docs/decisions/M5_CLOSURE_REVIEW_2026-09-23.md
+docs/models/ARGOS_V1_ROBUSTNESS_CARD.md
+docs/monitoring/ARGOS_V1_MONITORING_SPEC.md
+docs/M6_HANDOFF.md
 ```
 
 # 9. Notebooks y gates de M1–M5
@@ -1365,43 +1378,63 @@ M4 cierra el **experimento predictivo V1**, no la preparación para producción.
 
 ## M5 — Advanced Data Science & Robustness
 
-**Estado:** ▶ IN PROGRESS.
+**Estado:** ✅ CLOSED — 16/16 checks bloqueantes.
 
-M5 parte del ARGOS V1 congelado y fortalece evidencia antes de aumentar complejidad. El protocolo activo es `m5-robustness-v1` y se ejecuta mediante notebooks `40–47`:
+M5 fortaleció la evidencia del ARGOS V1 congelado sin reutilizar TEST 2025 para selección. El protocolo `m5-robustness-v1` ejecutó notebooks `40–47` y dejó trazabilidad completa de backtesting temporal, explicabilidad, incertidumbre, drift, valor de familias, fresh OOT 2026, monitoreo y gate.
+
+Resultados principales del fresh OOT 2026 plenamente observable (`2026-01-01` → `2026-03-13`):
 
 ```text
-40  rolling-origin temporal backtesting
-41  explainability global y local
-42  incertidumbre + estabilidad del ranking
-43  drift + calibración de cola
-44  revalidación de familias de features
-45  fresh OOT 2026 con V1 congelado
-46  contrato de monitoreo / evidencia pre-producción
-47  gate M5
+rows             529,054
+positives           7,255
+prevalence         1.3713%
+PR-AUC             0.053274
+ROC-AUC            0.744544
+Brier              0.013238
+ECE                0.003093
+Precision@1%       8.5806%
+Recall@1%          6.2578%
+Lift@1%            6.257x
 ```
 
-Modelos o señales adicionales —CatBoost/LightGBM/XGBoost, supervivencia, anomalías, NLP, grafos, causalidad, forecasting y risk fusion— quedan **autorizados para investigación posterior**, pero no se promueven en este paquete solo por añadir complejidad. Primero debe cerrarse la evidencia de robustez del benchmark V1.
+El OOT 2026 confirma señal predictiva útil por encima de revisión aleatoria, pero también evidencia degradación temporal material frente al TEST 2025. Por ello el cierre de M5 **no equivale a autorización de producción**. La degradación, el drift observado y la limitación estacional del holdout parcial de 2026 pasan como requisitos explícitos a M6.
 
-La regla central es que componentes avanzados deben demostrar **valor incremental** mediante ablations y evaluación temporal. TEST 2025 ya no es un holdout virgen. El fresh OOT 2026 se reserva hasta completar `40–44` y el pipeline exige `--consume-fresh-oot` para consumirlo. Handoff: `docs/M5_HANDOFF.md`. Runbook: `docs/M5_RUNBOOK.md`.
+M5 también congeló un ranking determinista:
+
+```text
+calibrated_score DESC
+raw_score DESC
+contract_id ASC
+```
+
+y un contrato de monitoreo para drift, missingness, score shift, prevalencia, calibración y Lift@K.
+
+Autoridades de cierre:
+
+```text
+docs/decisions/M5_GATE.md
+docs/decisions/M5_CLOSURE_REVIEW_2026-09-23.md
+docs/models/ARGOS_V1_ROBUSTNESS_CARD.md
+docs/monitoring/ARGOS_V1_MONITORING_SPEC.md
+```
 
 ---
 
-## M6 — Producción y MLOps
+## M6 — Productionization & MLOps
 
-Futuro:
+**Estado:** ▶ READY.
+
+M6 corresponde a la **operacionalización controlada** del sistema: pipelines reproducibles, packaging/serving, registry, CI/CD, observabilidad, monitoreo, seguridad, rollback, auditoría y validación de despliegue.
+
+M6 no convierte ARGOS en un sistema de decisión jurídica autónoma. El patrón operativo previsto continúa siendo:
 
 ```text
-reproducible pipelines
-experiment tracking
-model registry
-API
-monitoring
-drift detection
-CI/CD
-cloud deployment
+modelo → score/ranking → cola priorizada → revisión humana
 ```
 
-La arquitectura local busca mantener un núcleo portable para una migración futura a plataformas cloud.
+La automatización puede abarcar ingestión, scoring, monitoreo y generación de colas, pero no conclusiones de corrupción/fraude, sanciones, elegibilidad o decisiones legales automáticas.
+
+Contrato de entrada: `docs/M6_HANDOFF.md`.
 
 ---
 

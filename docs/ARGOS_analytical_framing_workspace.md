@@ -2,7 +2,7 @@
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
 > **Versión:** 1.3  
-> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ IN PROGRESS  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ✅ CLOSED · M6 ▶ READY  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1226,19 +1226,19 @@ Los notebooks deben consumir funciones de `src/argos/` en vez de acumular toda l
 
 # 27. CHECKPOINT ACTUAL RECOMENDADO
 
-M4 está formalmente cerrado. El checkpoint recomendado es:
+M5 está formalmente cerrado. El checkpoint recomendado es:
 
 ```bash
 git add .
-git commit -m "feat(modeling): valida el modelo V1 y cierra M4"
-git tag m4-cerrado
+git commit -m "feat(robustness): valida la robustez temporal y cierra M5"
+git tag m5-cerrado
 ```
 
-Si se desea separar la actualización documental:
+Si se desea separar documentación:
 
 ```bash
 git add README.md docs/
-git commit -m "docs(modeling): documenta el cierre de M4 y habilita M5"
+git commit -m "docs(robustness): documenta el cierre de M5 y habilita M6"
 ```
 
 ---
@@ -1246,7 +1246,7 @@ git commit -m "docs(modeling): documenta el cierre de M4 y habilita M5"
 # 28. MILESTONE ACTUAL
 
 ```text
-M5 — Advanced Data Science & Robustness
+M6 — Productionization & MLOps
 ```
 
 Estado de entrada:
@@ -1255,36 +1255,37 @@ Estado de entrada:
 [x] M1 cerrado
 [x] M2 cerrado
 [x] M3 cerrado
-[x] M4 cerrado con 14/14 checks bloqueantes
-[x] target y split temporal congelados
-[x] 41 features PIT auditadas
-[x] baseline no-ML y baseline lineal ejecutados
-[x] boosting comparado
-[x] calibración temporalmente separada
-[x] selección congelada antes de TEST mediante hashes
-[x] TEST 2025 evaluado una sola vez por notebook 36
-[x] model card persistida
-[x] Lift@1% TEST = 25.274x
+[x] M4 cerrado
+[x] M5 cerrado con 16/16 checks bloqueantes
+[x] TEST 2025 consumido y congelado
+[x] fresh OOT 2026 consumido bajo V1 congelado
+[x] ranking determinista definido
+[x] robustness card persistida
+[x] monitoring spec persistido
+[x] producción no auto-autorizada
 ```
 
-Contrato de entrada activo: `docs/M5_HANDOFF.md`.
+Contrato de entrada activo: `docs/M6_HANDOFF.md`.
 
-Prioridades M5:
+Prioridades M6:
 
 ```text
-[ ] rolling/temporal backtests adicionales
-[ ] explicabilidad global y local
-[ ] intervalos/incertidumbre para métricas operativas
-[ ] investigar drift de prevalencia y score
-[ ] revalidar utilidad incremental de historical/competition features
-[ ] evaluar calibración de cola alta
-[ ] experimentos avanzados con ablations obligatorios
-[ ] definir un nuevo holdout futuro antes de otra evaluación final
+[ ] empaquetado reproducible del modelo/runtime
+[ ] batch/online scoring contract
+[ ] model registry y promotion policy
+[ ] data/model observability
+[ ] monitoring automático con thresholds M5
+[ ] CI/CD y validación de artefactos
+[ ] rollback y versionado
+[ ] audit logging y seguridad
+[ ] shadow/canary antes de promoción
+[ ] workflow human-in-the-loop
+[ ] política de retraining y nuevos holdouts
 ```
 
-Regla: TEST 2025 está consumido. No puede reutilizarse como criterio de selección en M5.
+Regla: M6 puede automatizar la operación del scoring y la cola de revisión, pero no convierte ARGOS en un sistema autónomo de decisión legal o sancionatoria.
 
+## Checkpoint M5 cerrado — 2026-09-23
 
-## Checkpoint M5 activo — 2026-09-23
+M5 usa `m5-robustness-v1` y cerró `40–47`. El fresh OOT 2026 (`2026-01-01` a `2026-03-13`) contiene 529,054 contratos y obtuvo PR-AUC 0.053274, ROC-AUC 0.744544 y Lift@1% 6.257x. La señal sigue por encima de random, pero la degradación temporal y el drift detectado pasan como requisitos de monitoreo a M6.
 
-M5 usa `m5-robustness-v1` y notebooks `40–47`. El diseño no reabre TEST 2025 para selección. El primer holdout post-M4 es la cohorte 2026 plenamente observable y se reserva hasta finalizar `40–44`. El gate M5 exige robustness card, monitoring spec, lineage y producción explícitamente no autorizada por defecto.

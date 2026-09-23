@@ -3,8 +3,8 @@
 > **Documento de definición del problema**
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> Versión: 1.3  
-> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ IN PROGRESS
+> Versión: 1.4  
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ✅ CLOSED · M6 ▶ READY
 
 ---
 
@@ -623,7 +623,7 @@ Cada hipótesis deberá probarse utilizando un diseño de evaluación previament
 
 M4 validó el primer experimento supervisado completo sin reabrir el contrato Gold. El modelo seleccionado fue `hist_gradient_boosting` con calibración isotónica. Sobre TEST temporal 2025 obtuvo PR-AUC `0.135250`, ROC-AUC `0.872745`, Brier `0.009638`, ECE `0.002843` y Lift@1% `25.274x`. El gate M4 cerró con 14/14 checks bloqueantes.
 
-Esta evidencia demuestra capacidad de priorización fuera del periodo de selección, pero no autoriza producción. El TEST 2025 queda consumido. M5 está activo con rolling-origin backtesting, explainability, incertidumbre, drift/calibración, revalidación de familias y un fresh OOT 2026 reservado hasta completar el desarrollo previo.
+M5 amplió esta evidencia con rolling-origin backtesting, explainability, incertidumbre, drift/calibración, revalidación de familias y un fresh OOT 2026 ya consumido. El OOT confirma señal útil por encima de random, pero con degradación temporal material. Por ello M5 cierra la evidencia de robustez y M6 queda encargado de la operacionalización controlada; no se autoriza decisión jurídica autónoma.
 
 Limitaciones transportadas: drift de prevalencia, calibración de cola alta, ausencia de atribución explícita por feature y falta de evidencia monotónica de valor incremental para todas las familias de features.
 
@@ -634,3 +634,14 @@ Limitaciones transportadas: drift de prevalencia, calibración de cola alta, aus
 > **Primero construir una representación histórica correcta del mundo; después intentar predecirlo.**
 
 En ARGOS, la calidad del modelado temporal, las entidades y las etiquetas tiene prioridad sobre la complejidad algorítmica.
+
+
+---
+
+## 24. Estado posterior a M5
+
+M5 cerró con 16/16 checks bloqueantes y conserva ARGOS V1 como benchmark histórico congelado. La evidencia adicional incluye backtesting 2021–2024, explainability, bootstrap temporal, drift/calibración, revalidación de familias y fresh OOT 2026.
+
+El fresh OOT 2026 obtuvo PR-AUC 0.053274 y Lift@1% 6.257x sobre una prevalencia de 1.3713%. Existe generalización útil, pero con degradación frente a TEST 2025 y con cobertura parcial del año.
+
+La siguiente fase, M6, corresponde a productionization/MLOps: operacionalizar pipelines, serving, registry, observabilidad, monitoreo, rollback y auditoría. ARGOS continúa siendo una ayuda para priorización y revisión humana; no se redefine como sistema autónomo de sanción, elegibilidad o decisión legal.
