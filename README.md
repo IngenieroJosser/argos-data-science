@@ -21,7 +21,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [6. Arquitectura de datos](#6-arquitectura-de-datos)
 - [7. Estructura del repositorio](#7-estructura-del-repositorio)
 - [8. Estado actual del proyecto](#8-estado-actual-del-proyecto)
-- [9. Notebooks y gates de M1–M3](#9-notebooks-y-gates-de-m1m3)
+- [9. Notebooks y gates de M1–M4](#9-notebooks-y-gates-de-m1m4)
 - [10. Arquitectura del código](#10-arquitectura-del-código)
 - [11. Configuración](#11-configuración)
 - [12. Instalación](#12-instalación)
@@ -319,22 +319,22 @@ Los campos contractuales mutables/post-`t0` se segregan físicamente y la ambig�
 
 ## Gold
 
-Contendrá datasets preparados para consumo analítico y Machine Learning.
-
-Ejemplos:
+M3 materializó la capa analítica point-in-time `m3-gold-v1`, incluyendo labels, splits, features y el model matrix consumido por M4.
 
 ```text
 labels/
 features/
 splits/
-datasets/
+ml/argos_v1.parquet
 ```
 
-La granularidad prevista para el primer dataset de ML es:
+La granularidad V1 es:
 
 ```text
 1 fila = 1 contrato evaluado en t0
 ```
+
+El model matrix contiene 4,783,128 contratos asignados a TRAIN/VALIDATION/TEST y 41 features autorizadas por el feature registry. M4 consumió este contrato sin reconstruir features desde Bronze/Silver.
 
 ---
 
@@ -351,12 +351,14 @@ argos-code/
 │   ├── datasets.toml
 │   ├── project.toml
 │   ├── silver.toml
-│   └── gold.toml
+│   ├── gold.toml
+│   └── modeling.toml
 │
 ├── data/
 │   ├── bronze/
 │   ├── silver/
-│   └── gold/
+│   ├── gold/
+│   └── modeling/
 │
 ├── docs/
 │   ├── problem-definition.md
@@ -366,9 +368,12 @@ argos-code/
 │   ├── M3_HANDOFF.md
 │   ├── M3_RUNBOOK.md
 │   ├── M4_HANDOFF.md
+│   ├── M4_RUNBOOK.md
+│   ├── M5_HANDOFF.md
 │   ├── README.md
 │   ├── data-dictionary/
 │   ├── decisions/
+│   ├── models/
 │   └── target-specs/
 │
 ├── notebooks/
@@ -393,11 +398,20 @@ argos-code/
 │   ├── 24_historical_features.ipynb
 │   ├── 25_competition_relationship_features.ipynb
 │   ├── 26_gold_point_in_time_audit.ipynb
-│   └── 27_m3_gate.ipynb
+│   ├── 27_m3_gate.ipynb
+│   ├── 30_baseline_heuristics.ipynb
+│   ├── 31_logistic_regression_baseline.ipynb
+│   ├── 32_boosting_models.ipynb
+│   ├── 33_calibration_and_ranking.ipynb
+│   ├── 34_error_analysis_and_explainability.ipynb
+│   ├── 35_ablation_studies.ipynb
+│   ├── 36_business_impact.ipynb
+│   └── 37_m4_gate.ipynb
 │
 ├── pipelines/
 │   ├── build_silver_contracts_processes.py
-│   └── build_gold_m3.py
+│   ├── build_gold_m3.py
+│   └── run_modeling_m4.py
 │
 ├── reports/
 │   ├── experiments/
@@ -405,12 +419,14 @@ argos-code/
 │   ├── profiling/
 │   ├── quality/
 │   ├── silver/
-│   └── gold/
+│   ├── gold/
+│   └── modeling/
 │
 ├── scripts/
 │   ├── bootstrap_workspace.sh
 │   ├── evaluate_m1_gate.py
-│   └── evaluate_m3_gate.py
+│   ├── evaluate_m3_gate.py
+│   └── evaluate_m4_gate.py
 │
 ├── sql/
 │
@@ -443,10 +459,10 @@ argos-code/
 
 # 8. Estado actual del proyecto
 
-ARGOS completó la construcción y auditoría de su primera capa analítica point-in-time. El siguiente milestone autorizado es:
+ARGOS completó y cerró formalmente su primer experimento predictivo V1 sobre la capa Gold point-in-time. El siguiente milestone autorizado es:
 
 ```text
-M4 — Modeling & Evaluation
+M5 — Advanced Data Science & Robustness
 ```
 
 Estado de milestones:
@@ -455,41 +471,51 @@ Estado de milestones:
 M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED — 19/19
 M2 — Silver / Canonical Data Model                    ✅ CLOSED — 10/10
 M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED — 13/13
-M4 — Modeling & Evaluation                            ▶ READY
+M4 — Modeling & Evaluation                            ✅ CLOSED — 14/14
+M5 — Advanced Data Science & Robustness               ▶ READY
 ```
 
-M3 quedó cerrado por `27_m3_gate.ipynb` con **13/13 checks bloqueantes aprobados**. El gate verifica los checks de `20`–`26`, la presencia de los 7 artefactos Gold canónicos, manifests completos, consistencia de schema `m3-gold-v1`, target spec congelado, split temporal congelado y cero issues Gold bloqueantes.
+M4 quedó cerrado por `37_m4_gate.ipynb` con **14/14 checks bloqueantes aprobados**. El gate verificó la cadena completa `30`–`36`, presencia de reportes y manifests, consistencia de schema `m4-model-v1`, aislamiento del conjunto TEST, hashes del modelo/calibrador congelados antes de TEST y persistencia de la model card.
 
-La capa Gold V1 queda **congelada como contrato de entrada a Modeling**. El dataset auditado para M4 es `data/gold/ml/argos_v1.parquet`, con **4,783,128 contratos asignados** y **41 features** autorizadas por el feature registry. Ningún modelo de M4 debe reconstruir features directamente desde Bronze ni reinterpretar Silver.
-
-La semántica del target V1 quedó validada empíricamente:
+El modelo V1 seleccionado es:
 
 ```text
-target = y_addition_180d
-t0 = fecha_de_firma
-horizon = 180 días
-evento positivo = ADICION EN EL VALOR
-ventana = (t0, t0 + 180d]
-right censoring = label NULL
+modelo       = hist_gradient_boosting
+calibración  = isotonic
+Gold schema  = m3-gold-v1
+Model schema = m4-model-v1
+target       = y_addition_180d
 ```
 
-Split temporal congelado para evaluación:
+Resultado final sobre el **TEST temporal congelado de 2025**:
 
-| split | periodo | filas | positivos | prevalencia |
-|---|---|---:|---:|---:|
-| train | 2015-06-11 .. 2023-12-31 | 2,781,601 | 58,446 | 2.1012% |
-| validation | 2024-01-01 .. 2024-12-31 | 950,670 | 9,180 | 0.9656% |
-| test | 2025-01-01 .. 2025-12-31 | 1,050,857 | 10,983 | 1.0451% |
+| métrica | resultado |
+|---|---:|
+| filas TEST | 1,050,857 |
+| positivos | 10,983 |
+| prevalencia | 1.0451% |
+| PR-AUC | 0.135250 |
+| ROC-AUC | 0.872745 |
+| Log Loss | 0.045136 |
+| Brier | 0.009638 |
+| ECE | 0.002843 |
+| Precision@1% | 26.4155% |
+| Recall@1% | 25.2754% |
+| Lift@1% | 25.274x |
 
-La caída de prevalencia entre TRAIN y 2024–2025 es una propiedad empírica que M4 debe tratar como **prior probability / temporal shift**, no corregir alterando los conjuntos de evaluación.
+A una capacidad predeclarada de revisión del **1%**, ARGOS priorizó 10,509 contratos y capturó 2,776 de los 10,983 positivos del TEST. Estas métricas describen utilidad de priorización; no representan ahorro monetario, corrupción, fraude ni una conclusión jurídica.
 
-Deudas y restricciones que permanecen explícitas:
+### Interpretación profesional del cierre M4
 
-- bidder→supplier continúa parcialmente resuelto; los estados `unresolved` y `ambiguous` se preservan y no se imputan de forma forzada;
-- `payments` y `sanctions` continúan fuera del target V1;
-- el test 2025 está congelado y no participa en feature design, selección de modelo ni tuning;
-- cambios a target, split, schema Gold o feature registry requieren decisión documentada y reejecución de los gates afectados;
-- M4 debe reportar ranking, discriminación y calibración; `accuracy` no es una métrica primaria debido al desbalance del target.
+El cierre de M4 valida un **experimento predictivo V1 reproducible y temporalmente evaluado**. No equivale a autorización de producción. La revisión de cierre documenta de forma explícita restricciones que deben viajar a M5/M6:
+
+- el TEST 2025 ya fue consumido y no puede volver a tratarse como holdout virgen para seleccionar mejoras futuras;
+- existe drift/base-rate shift relevante entre TRAIN, las dos mitades de VALIDATION y TEST;
+- la calibración global es razonable, pero el extremo superior del score todavía requiere monitoreo específico;
+- los ablations no demuestran valor incremental monotónico de las 41 features: bajo el protocolo reducido, `contract + historical` mejora PR-AUC frente a `contract`, mientras `all` no domina; las features de competencia requieren revalidación;
+- `34_error_analysis_and_explainability.ipynb` materializa diagnóstico por segmentos y deciles, pero M4 no persiste atribuciones de features tipo permutation importance/SHAP. Esto no bloquea el cierre experimental, pero sí debe resolverse antes de una propuesta de producción.
+- la calibración isotónica introduce empates de score; antes de operación debe congelarse un desempate explícito (`calibrated_score`, luego `raw_score`, luego `contract_id`) y medirse la sensibilidad top-K;
+- los artefactos `joblib` deben ejecutarse con un runtime versionado compatible con el lock que los produjo.
 
 Documentos de autoridad:
 
@@ -497,13 +523,13 @@ Documentos de autoridad:
 docs/decisions/M1_GATE.md
 docs/decisions/M2_GATE.md
 docs/decisions/M3_GATE.md
-docs/decisions/M3_CLOSURE_REVIEW_2026-09-23.md
-docs/M4_HANDOFF.md
-docs/data-dictionary/gold_m3_catalog.md
+docs/decisions/M4_GATE.md
+docs/decisions/M4_CLOSURE_REVIEW_2026-09-23.md
+docs/models/ARGOS_V1_MODEL_CARD.md
+docs/M5_HANDOFF.md
 ```
 
-
-# 9. Notebooks y gates de M1–M3
+# 9. Notebooks y gates de M1–M4
 
 Los notebooks deben ejecutarse **en orden**.
 
@@ -833,6 +859,47 @@ La decisión persistida está en `docs/decisions/M3_GATE.md`.
 
 ---
 
+## `30_baseline_heuristics.ipynb`
+
+Evalúa baseline de prevalencia y heurística histórica sin usar TEST. **Resultado: 4/4 checks bloqueantes.** La heurística alcanza PR-AUC 0.039690 y Lift@1% 9.390x sobre VALIDATION completo.
+
+## `31_logistic_regression_baseline.ipynb`
+
+Entrena una regresión logística mediante `SGDClassifier(loss="log_loss")` sobre TRAIN completo en batches. **Resultado: 4/4 checks bloqueantes.** Su score raw discrimina, pero presenta calibración pobre; M4 no oculta esa limitación y la trata posteriormente.
+
+## `32_boosting_models.ipynb`
+
+Entrena `HistGradientBoostingClassifier` sobre una muestra TRAIN determinística de 750,000 filas y evalúa VALIDATION completo. **Resultado: 4/4 checks bloqueantes.** Obtiene PR-AUC 0.064529, ROC-AUC 0.853849 y Lift@1% 11.165x antes de calibración.
+
+## `33_calibration_and_ranking.ipynb`
+
+Divide VALIDATION temporalmente: primera mitad para ajustar calibración y segunda mitad para seleccionar. Compara los candidatos y `none`/`sigmoid`/`isotonic`; congela modelo y calibrador con SHA-256 antes de TEST. **Resultado: 6/6 checks bloqueantes.** Selección: `hist_gradient_boosting + isotonic`, con Lift@1% 17.027x en la población de selección.
+
+## `34_error_analysis_and_explainability.ipynb`
+
+Realiza diagnóstico de errores por segmentos y deciles sobre la población de selección, sin TEST. **Resultado: 3/3 checks bloqueantes.** En M4 V1 su alcance real es error analysis/segment diagnostics; la atribución explícita de features queda como deuda de robustez para M5.
+
+## `35_ablation_studies.ipynb`
+
+Compara `contract`, `contract + historical` y `all` bajo un presupuesto fijo de entrenamiento. **Resultado: 4/4 checks bloqueantes.** Los resultados no muestran dominancia de la familia completa; esta evidencia se conserva como limitación y línea de trabajo para M5.
+
+## `36_business_impact.ipynb`
+
+Único notebook autorizado para consumir el TEST 2025. Verifica hashes de los artefactos congelados, evalúa el TEST completo y materializa métricas, curva de capacidad y model card. **Resultado: 5/5 checks bloqueantes.** Resultado principal: PR-AUC 0.135250, ROC-AUC 0.872745 y Lift@1% 25.274x.
+
+## `37_m4_gate.ipynb`
+
+Autoridad formal de cierre M4. Verifica componentes `30`–`36`, artefactos, manifests, schema, política de aislamiento de TEST, hashes congelados y model card. Cerró el milestone con:
+
+```text
+M4 ✅ CLOSED
+Blocking checks: 14/14
+```
+
+La decisión computable se conserva en `docs/decisions/M4_GATE.md`.
+
+---
+
 # 10. Arquitectura del código
 
 Los notebooks **no contienen la lógica principal del proyecto**.
@@ -885,50 +952,30 @@ lógica reusable + testeable
 
 # 11. Configuración
 
-La configuración está externalizada en:
+La configuración está externalizada y versionada:
 
 ```text
 configs/
 ├── datasets.toml
-└── project.toml
+├── project.toml
+├── silver.toml
+├── gold.toml
+└── modeling.toml
 ```
 
-## `datasets.toml`
+`datasets.toml` describe fuentes y relaciones candidatas; `silver.toml` y `gold.toml` congelan contratos de datos; `modeling.toml` congela el protocolo M4 antes de TEST, incluyendo seed, presupuesto de entrenamiento, partición temporal de calibración, capacidades de revisión, criterios de aceptación y política de consumo de TEST.
 
-Contiene metadata y supuestos iniciales relacionados con:
+El contrato M4 activo durante el experimento fue:
 
 ```text
-source IDs
-file matching
-candidate keys
-join hypotheses
+schema_version       = m4-model-v1
+model_matrix         = data/gold/ml/argos_v1.parquet
+target               = y_addition_180d
+operational_fraction = 0.01
+final_test_notebook  = 36
 ```
 
-Las claves y relaciones allí declaradas son **candidatas** hasta ser verificadas empíricamente.
-
----
-
-## `project.toml`
-
-Actualmente define parámetros como:
-
-```toml
-[profiling]
-csv_sample_size = 100000
-example_rows = 2000
-compute_sha256 = false
-
-[target]
-name = "y_addition_180d"
-horizon_days = 180
-candidate_t0_dataset = "contracts"
-candidate_t0_column = "fecha_de_firma"
-contract_id_column = "id_contrato"
-addition_contract_id_column = "id_contrato"
-addition_event_column = "fecharegistro"
-```
-
-El uso de configuración externa evita hardcodear decisiones metodológicas dentro de los notebooks.
+La configuración externa evita hardcodear decisiones metodológicas dentro de notebooks y permite auditar qué protocolo produjo cada manifest.
 
 ---
 
@@ -1002,64 +1049,58 @@ Python (ARGOS)
 
 # 13. Ejecución
 
-Los CSV originales deben ubicarse en:
+Los CSV originales deben ubicarse en `data/bronze/`; los datos no forman parte del código fuente del proyecto.
+
+La secuencia histórica cerrada es:
 
 ```text
-data/bronze/
+00 → 01 → 02 → 03 → 04 → 05 → 06 → 07_m1_gate  → M1 ✅ CLOSED
+10 → 11 → 12 → 13 → 14 → 15_m2_gate            → M2 ✅ CLOSED
+20 → 21 → 22 → 23 → 24 → 25 → 26 → 27_m3_gate  → M3 ✅ CLOSED
+30 → 31 → 32 → 33 → 34 → 35 → 36 → 37_m4_gate  → M4 ✅ CLOSED
 ```
 
-Los datos no forman parte del código fuente del proyecto.
+M1–M4 se consideran congelados. No deben reejecutarse por rutina. Se reabren únicamente si cambia una fuente, target, split, feature contract, schema o implementación cuya modificación invalide evidencia previa.
 
-La secuencia histórica cerrada del proyecto es:
+Para M5, `docs/M5_HANDOFF.md` es el contrato vigente. TEST 2025 queda consumido como evaluación final V1 y no debe reutilizarse como holdout independiente para escoger nuevas mejoras.
 
-```text
-00 → 01 → 02 → 03 → 04 → 05 → 06 → 07_m1_gate
-                                      │
-                                      └── M1 ✅ CLOSED
-
-10 → 11 → 12 → 13 → 14 → 15_m2_gate
-                         │
-                         └── M2 ✅ CLOSED
-
-20 → 21 → 22 → 23 → 24 → 25 → 26 → 27_m3_gate
-                                        │
-                                        └── M3 ✅ CLOSED
-```
-
-M1, M2 y M3 se consideran **congelados**. No deben reejecutarse por rutina al iniciar Modeling. Solo se reabren si cambia una fuente, una regla canónica, target/split, schema o artefacto que invalide su evidencia.
-
-M4 puede consumir exclusivamente el contrato Gold auditado descrito en `docs/M4_HANDOFF.md`. El test 2025 permanece sellado para evaluación final.
-
-> Los primeros análisis Bronze realizan scans completos sobre CSV de varios GB. Silver ya materializa Parquet canónico para evitar repetir esos scans durante Gold.
+> Bronze puede requerir scans de CSV multi-GB; Silver y Gold existen precisamente para evitar repetir procesamiento bruto durante experimentación avanzada.
 
 ---
 
 # 14. Artefactos generados
 
-Los notebooks generan evidencia persistente en lugar de depender únicamente de outputs visuales.
+Los milestones generan evidencia persistente; los outputs visuales de notebooks no son la única fuente de verdad.
 
 ```text
 reports/
 ├── profiling/                 # evidencia M1
 ├── quality/                   # evidencia M1
 ├── silver/                    # validaciones y gate M2
-└── gold/                      # validaciones, feature registry y gate M3
+├── gold/                      # validaciones, feature registry y gate M3
+└── modeling/                  # métricas, predictions, ablations y gate M4
 
-artifacts/manifests/           # lineage de componentes Silver y Gold
+artifacts/
+├── manifests/                 # lineage M2–M4
+└── models/m4/                 # modelos, calibrador y selección congelada
 
 docs/decisions/
 ├── M1_GATE.md
 ├── M2_GATE.md
-├── M3_START_2026-09-23.md
-├── M3_TEMPORAL_SPLIT_FREEZE.md
-├── M3_CODE_READINESS_2026-09-23.md
 ├── M3_GATE.md
-└── M3_CLOSURE_REVIEW_2026-09-23.md
+├── M3_CLOSURE_REVIEW_2026-09-23.md
+├── M4_START_2026-09-23.md
+├── M4_CODE_READINESS_2026-09-23.md
+├── M4_GATE.md
+└── M4_CLOSURE_REVIEW_2026-09-23.md
+
+docs/models/
+└── ARGOS_V1_MODEL_CARD.md
 ```
 
-M2 materializa 12 artefactos canónicos bajo `data/silver/`. M3 materializa 7 artefactos Gold canónicos y el model matrix auditado `data/gold/ml/argos_v1.parquet`. Sus contratos de datos están documentados en `docs/data-dictionary/silver_m2_catalog.md` y `docs/data-dictionary/gold_m3_catalog.md`.
+M2 materializó 12 artefactos Silver canónicos; M3 materializó 7 artefactos Gold y `data/gold/ml/argos_v1.parquet`; M4 añadió modelos versionados, predicciones de validación/TEST, métricas de ranking y calibración, ablations, model card y manifests con hashes.
 
-Estos reportes y manifests se consideran **evidencia analítica generada**. Los artefactos de gate son parte del contrato de reproducibilidad del milestone y deben conservarse junto con la versión de código que los produjo.
+Estos artefactos deben conservarse junto con la versión de código que los produjo. En particular, `selected_model.json`, `m4_final_test.json` y `M4_GATE.md` forman una cadena de evidencia sobre la selección pre-TEST y la evaluación final.
 
 ---
 
@@ -1153,9 +1194,24 @@ La decisión autoritativa está en `docs/decisions/M2_GATE.md`.
 
 La decisión autoritativa está en `docs/decisions/M3_GATE.md`.
 
-## Regla de transición a M4
+## M4 — cierre
 
-Modeling consume `data/gold/ml/argos_v1.parquet` y su feature registry. No debe leer Bronze para features ni reconstruir historiales desde el snapshot completo. El conjunto TEST 2025 está congelado y no puede utilizarse para selección de variables, selección de modelo o tuning. El contrato formal de entrada está en `docs/M4_HANDOFF.md`.
+`37_m4_gate.ipynb` cerró M4 con **14/14 checks bloqueantes**. El gate verificó:
+
+- checks bloqueantes de `30`–`36`;
+- reportes y manifests M4 completos;
+- schema `m4-model-v1` consistente;
+- separación temporal de calibración/selección;
+- aislamiento de TEST durante `30`–`35`;
+- hashes de modelo y calibrador congelados antes del acceso a TEST;
+- evaluación final sobre las 1,050,857 filas del TEST;
+- model card persistida.
+
+La decisión autoritativa está en `docs/decisions/M4_GATE.md` y la revisión metodológica posterior en `docs/decisions/M4_CLOSURE_REVIEW_2026-09-23.md`.
+
+## Regla de transición a M5
+
+M5 puede investigar modelos y componentes avanzados, pero el TEST 2025 debe considerarse **consumido**. No puede reutilizarse como conjunto independiente para seleccionar nuevas features, modelos, hiperparámetros o calibradores. Cualquier nueva afirmación de generalización requerirá backtesting temporal adicional y, para una nueva evaluación final, un holdout temporal posterior no utilizado durante el desarrollo. El contrato de entrada está en `docs/M5_HANDOFF.md`.
 
 ---
 
@@ -1232,39 +1288,53 @@ Autoridad: `docs/decisions/M3_GATE.md`. Handoff a Modeling: `docs/M4_HANDOFF.md`
 
 ## M4 — Modeling & Evaluation
 
-**Estado:** ▶ READY.
+**Estado:** ✅ CLOSED — 14/14 checks bloqueantes.
 
-Secuencia prevista:
+Resultados principales:
 
 ```text
-30_baseline_heuristics.ipynb
-31_logistic_regression_baseline.ipynb
-32_boosting_models.ipynb
-33_calibration_and_ranking.ipynb
-34_error_analysis_and_explainability.ipynb
-35_ablation_studies.ipynb
-36_business_impact.ipynb
-37_m4_gate.ipynb
+selected model   hist_gradient_boosting
+calibration      isotonic
+TEST rows        1,050,857
+TEST prevalence  1.0451%
+PR-AUC           0.135250
+ROC-AUC          0.872745
+Brier            0.009638
+ECE              0.002843
+Precision@1%     26.4155%
+Recall@1%        25.2754%
+Lift@1%          25.274x
 ```
 
-M4 debe comparar referencias simples y modelos supervisados bajo el split temporal congelado. Métricas primarias: PR-AUC y métricas de ranking bajo capacidad (`Precision@K`, `Recall@K`, `Lift@K`, cumulative gain), complementadas por ROC-AUC, log loss, Brier y calibración.
+La selección quedó congelada mediante hashes antes del único acceso a TEST. `37_m4_gate.ipynb` verificó 14/14 checks bloqueantes. Autoridad: `docs/decisions/M4_GATE.md`. Revisión de cierre: `docs/decisions/M4_CLOSURE_REVIEW_2026-09-23.md`.
+
+M4 cierra el **experimento predictivo V1**, no la preparación para producción. El TEST 2025 queda consumido y no puede reciclarse como holdout independiente en M5.
 
 ---
 
-## M5 — Advanced Data Science
+## M5 — Advanced Data Science & Robustness
 
-Solo después de validar el problema base:
+**Estado:** ▶ READY.
+
+M5 parte de un baseline supervisado temporalmente validado. Sus prioridades son fortalecer evidencia antes de aumentar complejidad:
 
 ```text
+robustez temporal / rolling backtests
+explicabilidad global y local
+incertidumbre y sensibilidad de métricas
+revalidación de familias de features
+calibración en el extremo de alto riesgo
+CatBoost / LightGBM u otros modelos solo con protocolo versionado
 Survival Analysis
 Anomaly Detection
 NLP
-Graph Analytics
-Graph ML
+Graph Analytics / Graph ML
 Causal Analysis
 Forecasting
 Risk Fusion
 ```
+
+La regla central es que componentes avanzados deben demostrar **valor incremental** mediante ablations y evaluación temporal. El TEST 2025 ya no es un holdout virgen. Handoff: `docs/M5_HANDOFF.md`.
 
 ---
 

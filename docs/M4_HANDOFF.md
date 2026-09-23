@@ -3,8 +3,12 @@
 > **Origen:** M3 — Gold / Point-in-Time Analytical Layer  
 > **Estado de origen:** ✅ CLOSED — 13/13 checks bloqueantes  
 > **Destino:** M4 — Modeling & Evaluation  
-> **Estado de destino:** ▶ READY  
+> **Estado de destino:** ✅ CLOSED — 14/14 checks bloqueantes  
 > **Contrato de entrada:** `m3-gold-v1`
+
+## Estado del handoff
+
+Este contrato fue ejecutado completamente por M4 y se conserva como evidencia histórica. La autoridad de cierre es `docs/decisions/M4_GATE.md`; la transición vigente está en `docs/M5_HANDOFF.md`.
 
 ## 1. Propósito
 
@@ -117,7 +121,7 @@ Cumulative Gain
 
 `K` debe interpretarse como capacidad de revisión y documentarse con valores operativos concretos.
 
-## 8. Secuencia prevista de M4
+## 8. Secuencia ejecutable de M4
 
 ```text
 30_baseline_heuristics.ipynb

@@ -3,8 +3,8 @@
 > **Documento de definición del problema**
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> Versión: 1.2  
-> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ▶ READY
+> Versión: 1.3  
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ READY
 
 ---
 
@@ -585,11 +585,11 @@ Las preguntas originales de Data Understanding se mantienen como trazabilidad, p
 | ¿Qué tan estable es el NIT? | PARCIAL | resolución determinística solo cuando la evidencia es única; ambiguos permanecen explícitos |
 | ¿Existe información modificada retrospectivamente? | CONTROLADA V1 | campos snapshot/mutables fueron segregados y excluidos del model matrix |
 | ¿Cuál es la cobertura temporal de cada dataset? | PERFILADA | M1/M2 documentan cobertura; M3 congela el periodo analítico V1 |
-| ¿Existen periodos con cambios abruptos de calidad? | MONITOREAR | no bloqueó M3; M4 debe analizar drift y performance temporal |
+| ¿Existen periodos con cambios abruptos de calidad? | MONITOREAR M5 | M4 confirmó cambios materiales de prevalencia entre TRAIN, VALIDATION H1/H2 y TEST; M5 debe ampliar drift/backtesting temporal |
 | ¿Qué porcentaje puede unirse correctamente entre datasets? | MEDIDO | relaciones canónicas y coberturas están persistidas en M2 |
 | ¿Qué proporción tiene seguimiento suficiente para labels? | RESUELTA V1 | 5,312,182 contratos elegibles para 180 días |
 | ¿Cuál es la prevalencia del target por año? | RESUELTA V1 | perfil anual persistido en `reports/gold/20_target_by_year.parquet` |
-| ¿Hay segmentos que requieran un modelo separado? | ABIERTA M4 | debe evaluarse mediante error analysis y estabilidad por segmento |
+| ¿Hay segmentos que requieran un modelo separado? | PARCIAL M4 | M4 persistió error analysis por segmentos; no hay evidencia suficiente para promover modelos separados y M5 debe evaluar estabilidad temporal/operativa |
 | ¿Qué variables son conocidas en `t0`? | RESUELTA V1 | feature registry Gold de 41 features auditadas |
 
 La existencia de una resolución V1 no implica que la decisión sea universal o definitiva; cualquier cambio de target, snapshot o fuente exige revalidación.
@@ -619,7 +619,17 @@ Cada hipótesis deberá probarse utilizando un diseño de evaluación previament
 
 ---
 
-## 25. Principio rector
+## 25. Resultado predictivo V1
+
+M4 validó el primer experimento supervisado completo sin reabrir el contrato Gold. El modelo seleccionado fue `hist_gradient_boosting` con calibración isotónica. Sobre TEST temporal 2025 obtuvo PR-AUC `0.135250`, ROC-AUC `0.872745`, Brier `0.009638`, ECE `0.002843` y Lift@1% `25.274x`. El gate M4 cerró con 14/14 checks bloqueantes.
+
+Esta evidencia demuestra capacidad de priorización fuera del periodo de selección, pero no autoriza producción. El TEST 2025 queda consumido y M5 deberá usar protocolos temporales adicionales y un nuevo holdout futuro para cualquier nueva afirmación final de generalización.
+
+Limitaciones transportadas: drift de prevalencia, calibración de cola alta, ausencia de atribución explícita por feature y falta de evidencia monotónica de valor incremental para todas las familias de features.
+
+---
+
+## 26. Principio rector
 
 > **Primero construir una representación histórica correcta del mundo; después intentar predecirlo.**
 

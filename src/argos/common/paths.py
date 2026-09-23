@@ -81,12 +81,14 @@ class ProjectPaths:
             self.reports / "experiments",
             self.reports / "silver",
             self.reports / "gold",
+            self.reports / "modeling",
             self.gold / "labels",
             self.gold / "splits",
             self.gold / "features",
             self.gold / "ml",
             self.root / ".cache" / "duckdb",
             self.root / "artifacts" / "models",
+            self.root / "artifacts" / "models" / "m4",
             self.root / "artifacts" / "manifests",
         ]:
             path.mkdir(parents=True, exist_ok=True)

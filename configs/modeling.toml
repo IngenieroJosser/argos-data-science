@@ -1,0 +1,67 @@
+# M4 Modeling & Evaluation contract.
+# This file freezes evaluation policy before the final TEST evaluation.
+
+[modeling]
+schema_version = "m4-model-v1"
+model_matrix = "data/gold/ml/argos_v1.parquet"
+feature_registry = "reports/gold/26_feature_registry.parquet"
+target = "y_addition_180d"
+id_column = "contract_id"
+t0_column = "t0"
+split_column = "split"
+random_seed = 42
+batch_size = 100000
+
+[runtime]
+duckdb_threads = 2
+duckdb_memory_limit = "8GB"
+
+[preprocessing]
+missing_category = "__MISSING__"
+onehot_max_categories = 128
+onehot_min_frequency = 500
+encoder_fit_max_rows = 250000
+
+[linear]
+implementation = "sgd_logistic"
+epochs = 2
+alpha = 0.00001
+positive_class_weight_cap = 75.0
+
+[boosting]
+implementation = "hist_gradient_boosting"
+max_train_rows = 750000
+max_categories = 128
+max_iter = 220
+learning_rate = 0.06
+max_leaf_nodes = 31
+min_samples_leaf = 40
+l2_regularization = 1.0
+positive_class_weight_cap = 75.0
+
+[calibration]
+fit_end = "2024-06-30"
+selection_start = "2024-07-01"
+methods = ["none", "sigmoid", "isotonic"]
+min_partition_positives = 500
+
+[ranking]
+review_fractions = [0.001, 0.005, 0.01, 0.025, 0.05, 0.10]
+operational_fraction = 0.01
+calibration_bins = 15
+
+[ablation]
+max_train_rows = 300000
+max_iter = 100
+families = ["contract", "contract_historical", "all"]
+
+[acceptance]
+# Frozen before TEST is evaluated. These are minimum usefulness checks, not tuning targets.
+min_validation_pr_auc_over_prevalence = 1.0
+min_validation_lift_at_operational_k = 1.0
+min_test_lift_at_operational_k = 1.0
+
+[test_policy]
+# TEST can only be consumed by notebook 36 after model/calibration selection is frozen.
+final_test_notebook = 36
+reuse_completed_test_artifacts = true

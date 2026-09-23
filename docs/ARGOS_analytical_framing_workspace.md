@@ -1,8 +1,8 @@
 # ARGOS — Formulación Analítica y Configuración del Workspace
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
-> **Versión:** 1.2  
-> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ▶ READY  
+> **Versión:** 1.3  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ✅ CLOSED · M4 ✅ CLOSED · M5 ▶ READY  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1226,19 +1226,19 @@ Los notebooks deben consumir funciones de `src/argos/` en vez de acumular toda l
 
 # 27. CHECKPOINT ACTUAL RECOMENDADO
 
-M3 está formalmente cerrado. El checkpoint recomendado es:
+M4 está formalmente cerrado. El checkpoint recomendado es:
 
 ```bash
 git add .
-git commit -m "feat(gold): completa la capa point-in-time y cierra M3"
-git tag m3-cerrado
+git commit -m "feat(modeling): valida el modelo V1 y cierra M4"
+git tag m4-cerrado
 ```
 
-La documentación de cierre puede persistirse en un commit separado si se desea mantener la historia Git más granular:
+Si se desea separar la actualización documental:
 
 ```bash
 git add README.md docs/
-git commit -m "docs(gold): documenta el cierre de M3 y habilita M4"
+git commit -m "docs(modeling): documenta el cierre de M4 y habilita M5"
 ```
 
 ---
@@ -1246,7 +1246,7 @@ git commit -m "docs(gold): documenta el cierre de M3 y habilita M4"
 # 28. MILESTONE ACTUAL
 
 ```text
-M4 — Modeling & Evaluation
+M5 — Advanced Data Science & Robustness
 ```
 
 Estado de entrada:
@@ -1254,33 +1254,32 @@ Estado de entrada:
 ```text
 [x] M1 cerrado
 [x] M2 cerrado
-[x] semantic freeze del target
-[x] labels con censoring explícito
-[x] split temporal congelado
-[x] EDA de decisiones restringido a TRAIN
-[x] contract features auditadas
-[x] historical features con history_timestamp < t0
-[x] competition features con publication_at <= t0
-[x] model matrix Gold materializado
-[x] point-in-time audit sin violaciones
-[x] M3 cerrado con 13/13 checks bloqueantes
+[x] M3 cerrado
+[x] M4 cerrado con 14/14 checks bloqueantes
+[x] target y split temporal congelados
+[x] 41 features PIT auditadas
+[x] baseline no-ML y baseline lineal ejecutados
+[x] boosting comparado
+[x] calibración temporalmente separada
+[x] selección congelada antes de TEST mediante hashes
+[x] TEST 2025 evaluado una sola vez por notebook 36
+[x] model card persistida
+[x] Lift@1% TEST = 25.274x
 ```
 
-Contrato de entrada activo: `docs/M4_HANDOFF.md`.
+Contrato de entrada activo: `docs/M5_HANDOFF.md`.
 
-Prioridades M4:
+Prioridades M5:
 
 ```text
-[ ] baseline de prevalencia/dummy
-[ ] heurísticas reproducibles
-[ ] Logistic Regression baseline
-[ ] boosting bajo validación temporal
-[ ] calibración y ranking bajo capacidad
-[ ] error analysis por segmentos
-[ ] ablation studies
-[ ] análisis de impacto operativo
-[ ] evaluación final sobre TEST congelado
-[ ] gate M4
+[ ] rolling/temporal backtests adicionales
+[ ] explicabilidad global y local
+[ ] intervalos/incertidumbre para métricas operativas
+[ ] investigar drift de prevalencia y score
+[ ] revalidar utilidad incremental de historical/competition features
+[ ] evaluar calibración de cola alta
+[ ] experimentos avanzados con ablations obligatorios
+[ ] definir un nuevo holdout futuro antes de otra evaluación final
 ```
 
-El conjunto TEST 2025 no se utiliza para seleccionar features, modelos, hiperparámetros, calibradores o thresholds.
+Regla: TEST 2025 está consumido. No puede reutilizarse como criterio de selección en M5.
