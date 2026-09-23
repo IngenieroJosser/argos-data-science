@@ -4,7 +4,7 @@
 >
 > Proyecto: ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
 > Versión: 1.1  
-> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ READY
+> Estado: M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ IN PROGRESS
 
 ---
 
@@ -72,11 +72,11 @@ En etapas posteriores se podrán construir unidades de análisis adicionales:
 
 Se debe definir explícitamente un momento `t0`.
 
-Versión inicial propuesta:
+Definición V1 congelada en M3:
 
-> `t0 = fecha en la cual el contrato queda adjudicado/formalizado y existe información suficiente para realizar una evaluación inicial`.
+> `t0 = fecha_de_firma` del contrato electrónico.
 
-La definición exacta dependerá de las fechas disponibles y de su calidad en SECOP II.
+M1 validó su cobertura y parseabilidad; M2 preservó el campo tipado en Silver; M3 lo utiliza como prediction timestamp para el primer dataset Gold.
 
 Toda variable utilizada por un modelo predictivo deberá satisfacer:
 
@@ -102,7 +102,7 @@ P(Y_{180}=1 \mid X_{t0})
 
 con una etiqueta binaria definida únicamente para contratos con ventana de observación completa.
 
-La definición operacional de "modificación relevante" deberá documentarse después de inspeccionar los datos de adiciones y ejecución.
+Para M3 V1, la definición operacional queda restringida a un evento canónico `ADICION EN EL VALOR` registrado en la fuente Silver de Adiciones.
 
 ---
 
@@ -114,11 +114,13 @@ El proyecto será multiobjetivo, pero no se desarrollarán todos los targets sim
 
 `y_addition_180d`
 
-Posible definición:
+Definición M3 V1:
 
-- existe una adición contractual posterior a `t0`;
-- ocurre dentro de 180 días;
-- cumple las reglas de calidad y relevancia definidas.
+- `t0 = fecha_de_firma`;
+- evento positivo: `ADICION EN EL VALOR`;
+- ventana: `t0 < event_at <= t0 + 180 días`;
+- contratos con horizonte incompleto quedan censurados y reciben label `NULL`;
+- la especificación autoritativa vive en `docs/target-specs/y_addition_180d.md`.
 
 ### Targets posteriores
 

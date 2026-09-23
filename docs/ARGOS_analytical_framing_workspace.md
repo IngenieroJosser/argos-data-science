@@ -2,7 +2,7 @@
 
 > **Proyecto:** ARGOS — Plataforma de inteligencia de riesgo para contratación pública  
 > **Versión:** 1.1  
-> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ READY  
+> **Estado:** M1 ✅ CLOSED · M2 ✅ CLOSED · M3 ▶ IN PROGRESS  
 > **Documento relacionado:** `docs/problem-definition.md`
 
 ---
@@ -1236,7 +1236,7 @@ git tag m2-cerrado
 
 ---
 
-# 28. SIGUIENTE MILESTONE
+# 28. MILESTONE ACTUAL
 
 ```text
 M3 — Gold / Point-in-Time Analytical Layer
@@ -1245,7 +1245,7 @@ M3 — Gold / Point-in-Time Analytical Layer
 Prioridades de entrada:
 
 ```text
-[ ] congelar la semántica final del target
+[x] congelar la semántica V1 del target (`ADICION EN EL VALOR`, 180 días)
 [ ] construir labels con censoring explícito
 [ ] diseñar split temporal antes de EDA/modelado
 [ ] crear features únicamente con información <= t0
@@ -1254,6 +1254,6 @@ Prioridades de entrada:
 [ ] cerrar M3 con gate antes de Modeling
 ```
 
-Contrato de entrada: `docs/M3_HANDOFF.md`.
+Contrato de entrada: `docs/M3_HANDOFF.md`. Runbook operativo: `docs/M3_RUNBOOK.md`.
 
 No se debe entrenar ningún modelo antes de completar el audit Gold point-in-time y el gate de M3.

@@ -21,7 +21,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [6. Arquitectura de datos](#6-arquitectura-de-datos)
 - [7. Estructura del repositorio](#7-estructura-del-repositorio)
 - [8. Estado actual del proyecto](#8-estado-actual-del-proyecto)
-- [9. Notebooks y gates de M1–M2](#9-notebooks-y-gates-de-m1m2)
+- [9. Notebooks y gates de M1–M3](#9-notebooks-y-gates-de-m1m3)
 - [10. Arquitectura del código](#10-arquitectura-del-código)
 - [11. Configuración](#11-configuración)
 - [12. Instalación](#12-instalación)
@@ -107,13 +107,17 @@ El target candidato inicial es:
 y_addition_180d
 ```
 
-Su definición definitiva **todavía no se considera congelada**. Antes debe demostrarse que:
+En M3 V1 su semántica queda congelada como:
 
-- existe un timestamp confiable para las adiciones;
-- existe una relación suficientemente confiable entre contratos y adiciones;
-- puede definirse un `t0` consistente;
-- existe seguimiento suficiente para observar 180 días;
-- el evento puede construirse sin leakage.
+```text
+t0 = fecha_de_firma
+horizonte = 180 días
+evento positivo = ADICION EN EL VALOR
+ventana = (t0, t0 + 180d]
+censura = horizonte incompleto => label NULL
+```
+
+La definición está versionada en `docs/target-specs/y_addition_180d.md` y se valida empíricamente en `20_target_engineering.ipynb`.
 
 ---
 
@@ -346,7 +350,8 @@ argos-code/
 ├── configs/
 │   ├── datasets.toml
 │   ├── project.toml
-│   └── silver.toml
+│   ├── silver.toml
+│   └── gold.toml
 │
 ├── data/
 │   ├── bronze/
@@ -359,6 +364,7 @@ argos-code/
 │   ├── M1_RUNBOOK.md
 │   ├── M2_RUNBOOK.md
 │   ├── M3_HANDOFF.md
+│   ├── M3_RUNBOOK.md
 │   ├── README.md
 │   ├── data-dictionary/
 │   ├── decisions/
@@ -378,7 +384,15 @@ argos-code/
 │   ├── 12_silver_events.ipynb
 │   ├── 13_entity_resolution.ipynb
 │   ├── 14_silver_validation.ipynb
-│   └── 15_m2_gate.ipynb
+│   ├── 15_m2_gate.ipynb
+│   ├── 20_target_engineering.ipynb
+│   ├── 21_temporal_split_design.ipynb
+│   ├── 22_train_eda.ipynb
+│   ├── 23_contract_features.ipynb
+│   ├── 24_historical_features.ipynb
+│   ├── 25_competition_relationship_features.ipynb
+│   ├── 26_gold_point_in_time_audit.ipynb
+│   └── 27_m3_gate.ipynb
 │
 ├── pipelines/
 │   └── build_silver_contracts_processes.py
@@ -388,7 +402,8 @@ argos-code/
 │   ├── figures/
 │   ├── profiling/
 │   ├── quality/
-│   └── silver/
+│   ├── silver/
+│   └── gold/
 │
 ├── scripts/
 │   └── bootstrap_workspace.sh
@@ -402,6 +417,7 @@ argos-code/
 │       ├── entities/
 │       ├── evaluation/
 │       ├── features/
+│       ├── gold/
 │       ├── ingestion/
 │       ├── models/
 │       ├── profiling/
@@ -434,18 +450,18 @@ Estado de milestones:
 ```text
 M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED — 19/19
 M2 — Silver / Canonical Data Model                    ✅ CLOSED — 10/10
-M3 — Target & Gold Dataset                            ▶ READY
+M3 — Gold / Point-in-Time Analytical Layer            ▶ IN PROGRESS
 ```
 
 M2 quedó cerrado por `15_m2_gate.ipynb` con **10/10 checks bloqueantes aprobados**. El cierre verifica los checks de notebooks `10`–`14`, la presencia de los 12 artefactos Silver canónicos, manifests completos, consistencia de schema `m2-silver-v1`, cero issues bloqueantes y auditoría explícita de entity resolution.
 
-La capa Silver queda **congelada como baseline de dominio**. Cambios posteriores sobre su schema o reglas requieren una decisión documentada y la reejecución de los gates afectados.
+La capa Silver queda **congelada como baseline de dominio**. M3 ha comenzado formalmente con `m3-gold-v1`, target V1 y split temporal versionados. Cambios posteriores sobre su schema o reglas requieren una decisión documentada y la reejecución de los gates afectados.
 
 Deudas no bloqueantes transportadas a M3:
 
 - la cobertura de bidder→supplier es limitada y se preservan estados `unresolved`/`ambiguous`;
 - `payments` y `sanctions` continúan diferidos para el V1 de riesgo de adiciones;
-- la semántica final de `y_addition_180d` aún debe congelarse a partir de los tipos de evento conservados en Silver;
+- la semántica V1 de `y_addition_180d` ya está congelada en Gold como `ADICION EN EL VALOR` dentro de `(t0, t0+180d]`;
 - ninguna columna Silver queda autorizada automáticamente como feature: Gold debe reconstruir su disponibilidad `<= t0`.
 
 Documentos de autoridad:
@@ -458,7 +474,7 @@ docs/data-dictionary/silver_m2_catalog.md
 ```
 
 
-# 9. Notebooks y gates de M1–M2
+# 9. Notebooks y gates de M1–M3
 
 Los notebooks deben ejecutarse **en orden**.
 
@@ -747,6 +763,38 @@ Blocking checks: 10/10
 
 La decisión persistida está en `docs/decisions/M2_GATE.md`.
 
+## `20_target_engineering.ipynb`
+
+Congela y materializa `y_addition_180d` con `ADICION EN EL VALOR` como evento positivo, ventana `(t0, t0+180d]` y censura explícita.
+
+## `21_temporal_split_design.ipynb`
+
+Congela train 2015–2023, validation 2024 y test 2025. El test no participa en feature engineering ni tuning.
+
+## `22_train_eda.ipynb`
+
+Realiza EDA orientado a modelado exclusivamente sobre TRAIN.
+
+## `23_contract_features.ipynb`
+
+Materializa una whitelist conservadora de features contractuales y vuelve a bloquear campos mutables/post-`t0`.
+
+## `24_historical_features.ipynb`
+
+Construye históricos de proveedor, entidad y relación proveedor–entidad usando solo timestamps estrictamente anteriores a `t0`.
+
+## `25_competition_relationship_features.ipynb`
+
+Construye features de competencia únicamente con participaciones demostrablemente publicadas hasta `t0`.
+
+## `26_gold_point_in_time_audit.ipynb`
+
+Audita grain, labels, timestamps y leakage; solo entonces materializa `data/gold/ml/argos_v1.parquet`.
+
+## `27_m3_gate.ipynb`
+
+Autoridad formal de cierre M3. Modeling queda bloqueado hasta obtener `M3 ✅ CLOSED`.
+
 ---
 
 # 10. Arquitectura del código
@@ -940,7 +988,7 @@ La secuencia histórica cerrada del proyecto es:
 
 M1 y M2 se consideran **congelados**. No deben reejecutarse por rutina al iniciar M3. Solo se reabren si cambia una fuente, una regla canónica o un artefacto que invalide su evidencia.
 
-El siguiente trabajo comienza en Gold con `20_target_engineering.ipynb` cuando se implemente M3.
+M3 está en ejecución. Continuar en orden desde `20_target_engineering.ipynb` hasta `27_m3_gate.ipynb`; Modeling permanece bloqueado hasta `M3 ✅ CLOSED`.
 
 > Los primeros análisis Bronze realizan scans completos sobre CSV de varios GB. Silver ya materializa Parquet canónico para evitar repetir esos scans durante Gold.
 
@@ -954,13 +1002,17 @@ Los notebooks generan evidencia persistente en lugar de depender únicamente de 
 reports/
 ├── profiling/                 # evidencia M1
 ├── quality/                   # evidencia M1
-└── silver/                    # validaciones y gate M2
+├── silver/                    # validaciones y gate M2
+└── gold/                      # validaciones, feature registry y gate M3
 
-artifacts/manifests/           # lineage de componentes Silver
+artifacts/manifests/           # lineage de componentes Silver y Gold
 
 docs/decisions/
 ├── M1_GATE.md
-└── M2_GATE.md
+├── M2_GATE.md
+├── M3_START_2026-09-23.md
+├── M3_TEMPORAL_SPLIT_FREEZE.md
+└── M3_CODE_READINESS_2026-09-23.md
 ```
 
 M2 además materializa 12 artefactos canónicos bajo `data/silver/`; su catálogo y grain están documentados en `docs/data-dictionary/silver_m2_catalog.md`.
@@ -1046,7 +1098,7 @@ La decisión autoritativa está en `docs/decisions/M2_GATE.md`.
 
 ## Regla de transición a M3
 
-M3 puede comenzar sobre Silver cerrado, pero debe volver a validar **point-in-time correctness**. El cierre de M2 no autoriza automáticamente columnas como features ni congela la semántica final del target.
+M3 comenzó sobre Silver cerrado y debe volver a validar **point-in-time correctness**. El cierre de M2 no autoriza automáticamente columnas como features. La semántica V1 del target ya quedó congelada al iniciar M3 y se valida empíricamente en `20_target_engineering.ipynb`.
 
 ---
 
@@ -1099,9 +1151,9 @@ Autoridad: `docs/decisions/M2_GATE.md`.
 
 ---
 
-## M3 — Target & Gold Dataset
+## M3 — Gold / Point-in-Time Analytical Layer
 
-**Estado:** ▶ READY — siguiente milestone.
+**Estado:** ▶ IN PROGRESS.
 
 Objetivos:
 
@@ -1115,7 +1167,7 @@ Gold dataset
 leakage / PIT audit
 ```
 
-Entrada formal: `docs/M3_HANDOFF.md`.
+Entrada formal: `docs/M3_HANDOFF.md`. Ejecución: `docs/M3_RUNBOOK.md`. Cierre formal: `27_m3_gate.ipynb`.
 
 ---
 
@@ -1475,5 +1527,4 @@ docs/decisions/M1_GATE.md
 docs/decisions/M2_GATE.md
 ```
 
-M2 preservó explícitamente la población no resuelta/ambigua de bidder→supplier en lugar de forzar correspondencias. M3 hereda esa incertidumbre y deberá congelar la semántica del target, diseñar el split temporal y aprobar un audit point-in-time antes de entrenar modelos.
-
+M2 preservó explícitamente la población no resuelta/ambigua de bidder→supplier en lugar de forzar correspondencias. M3 hereda esa incertidumbre; la semántica V1 del target y el split temporal ya están congelados como decisiones versionadas, y aún deben validarse empíricamente junto con el audit point-in-time antes de entrenar modelos.

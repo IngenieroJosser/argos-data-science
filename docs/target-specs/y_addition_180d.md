@@ -1,64 +1,83 @@
 # Target specification — `y_addition_180d`
 
-> **Estado:** CANDIDATE — semantic freeze pendiente en M3  
-> **Fuente de eventos:** `data/silver/addition_events.parquet` (`m2-silver-v1`)
+> **Estado:** FROZEN — M3 V1  
+> **Gold schema:** `m3-gold-v1`  
+> **Fuente de eventos:** `data/silver/addition_events.parquet`
 
-## Analytical question
+## Pregunta analítica
 
-Given information available at contract prediction time `t0`, does the contract experience at least one event from the dedicated SECOP II **Adiciones** source during the next 180 days?
+Dada la información disponible al momento de firma de un contrato, ¿se registrará una **ADICION EN EL VALOR** durante los siguientes 180 días?
 
-## Unit
+## Unidad de análisis
 
-One label per unique `contract_id` at `t0`.
+Una fila por `contract_id` evaluado en `t0`.
 
-## Candidate `t0`
-
-`contracts.fecha_de_firma`.
-
-The field is accepted only after the M1 gate confirms minimum raw coverage, parse success and calendar plausibility. Parsing uses the explicit SECOP timestamp policy in `argos.common.sql.timestamp_expr`.
-
-## Event identity
-
-Bronze Adiciones contains repeated rows. Feasibility labeling therefore uses distinct:
+## Prediction time
 
 ```text
-(contract_id, event_at, event_type)
+t0 = contracts.fecha_de_firma
 ```
 
-before calculating the first post-`t0` event. Source duplicates cannot create additional positives.
+## Evento positivo V1
 
-## Event scope
-
-For M1/M2 feasibility, every parsable row in the dedicated Adiciones source is included. `Tipo` is retained in the deduplication key. This is explicitly a **feasibility scope**, not the final semantic freeze of the modeling target: the observed source contains several event types beyond literal value additions. Before Gold target/model training, the project must either (a) justify the all-row event interpretation and rename the target accordingly, or (b) explicitly configure the subset of `Tipo` values that represents the outcome of interest and revise this specification.
-
-## Positive
-
-A contract is positive when at least one deduplicated included event satisfies:
+Solo se incluye el tipo canónico:
 
 ```text
-t0 < event_at <= t0 + 180 days
+ADICION EN EL VALOR
 ```
 
-Events at or before `t0` are diagnostics and do not count as future positives.
+Otros tipos preservados en Silver —por ejemplo `MODIFICACION GENERAL`, `CONCLUSION`, `CESION`, `SUSPENSION` o valores no definidos— **no convierten el label V1 en positivo**.
 
-## Negative
+## Ventana
 
-A contract is negative only when the full 180-day horizon is observable before the label cutoff and no qualifying event occurs within that horizon.
-
-## Censoring
-
-If:
+Un evento califica únicamente cuando:
 
 ```text
-t0 + 180 days > label_cutoff
+t0 < event_at <= t0 + 180 días
 ```
 
-the contract is right-censored for this horizon and is not labeled negative.
+Los eventos en o antes de `t0` forman parte del historial observable y nunca del outcome futuro de esa fila.
 
 ## Label cutoff
 
-By default, the latest parsable timestamp among included Adiciones events. This avoids pretending that the source observes outcomes beyond its demonstrated event coverage.
+Se utiliza el máximo `event_at` parsable observado en la fuente Silver canónica de eventos. El cutoff representa el límite empírico de observación de outcomes del snapshot disponible.
+
+## Positivo
+
+```text
+y_addition_180d = 1
+```
+
+si existe al menos un evento `ADICION EN EL VALOR` dentro de `(t0, t0 + 180d]`.
+
+## Negativo
+
+```text
+y_addition_180d = 0
+```
+
+solo si el horizonte completo de 180 días es observable y no existe un evento calificante en la ventana.
+
+## Censoring
+
+Si:
+
+```text
+t0 + 180 días > label_cutoff
+```
+
+el contrato es right-censored y:
+
+```text
+y_addition_180d = NULL
+```
+
+Nunca se convierte automáticamente en negativo.
+
+## Deduplicación
+
+Gold consume `addition_events.parquet`, cuyo grain Silver ya es un evento canónico por `(contract_id, event_at, event_type)` con duplicados fuente contabilizados mediante lineage.
 
 ## Leakage rule
 
-No field whose value is generated or updated after `t0` may be used as a model feature. Current-state contract fields such as paid/factured values, added days, liquidation fields, current contract state and later updates remain excluded unless a point-in-time reconstruction proves their availability at `t0`.
+Ninguna feature puede utilizar información producida después de `t0`. Los campos del snapshot contractual actual identificados como mutables/post-`t0` permanecen excluidos del model matrix V1.

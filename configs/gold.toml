@@ -1,0 +1,101 @@
+# M3 Gold analytical contract.
+# Gold is model-oriented and MUST preserve point-in-time correctness.
+# Every transformation is reproducible from M2 Silver and this frozen config.
+
+[gold]
+schema_version = "m3-gold-v1"
+compression = "zstd"
+row_group_size = 100000
+
+[gold.runtime]
+duckdb_threads = 2
+duckdb_memory_limit = "8GB"
+
+[target]
+name = "y_addition_180d"
+t0_column = "fecha_de_firma"
+horizon_days = 180
+# Semantic freeze for V1: a positive means a literal value addition.
+included_event_types = ["ADICION EN EL VALOR"]
+label_cutoff_strategy = "max_all_event_at"
+min_t0_coverage = 0.85
+min_eligible_rows = 100000
+min_positive_rows = 1000
+min_prevalence = 0.001
+max_prevalence = 0.50
+plausible_year_min = 2000
+plausible_year_max = 2100
+
+[splits]
+# Frozen temporal evaluation policy. 2026 is intentionally not in train/valid/test
+# because the 2026 cohort is only partially observable at the 2026-09 source cutoff.
+train_start = "2015-01-01"
+train_end = "2023-12-31"
+validation_start = "2024-01-01"
+validation_end = "2024-12-31"
+test_start = "2025-01-01"
+test_end = "2025-12-31"
+min_train_rows = 100000
+min_validation_rows = 50000
+min_test_rows = 50000
+min_positive_rows_per_split = 500
+
+[contract_features]
+# Conservative V1 whitelist: attributes expected to be defined by signing time.
+# Current-state balances, liquidation fields, added days, current state, and other
+# mutable snapshot columns are physically excluded in M2 and forbidden again here.
+categorical_candidates = [
+    "departamento",
+    "ciudad",
+    "orden",
+    "sector",
+    "rama",
+    "entidad_centralizada",
+    "codigo_de_categoria_principal",
+    "tipo_de_contrato",
+    "modalidad_de_contratacion",
+    "justificacion_modalidad_de_contratacion",
+    "tipodocproveedor",
+    "es_grupo",
+    "es_pyme",
+    "habilita_pago_adelantado",
+    "obligacion_ambiental",
+    "obligaciones_postconsumo",
+    "reversion",
+    "origen_de_los_recursos",
+    "destino_gasto",
+]
+# Monetary/current-value fields are intentionally not enabled in V1 until their
+# as-of-signing semantics are independently demonstrated.
+numeric_candidates = []
+required_identity_columns = ["contract_id", "supplier_code", "nit_entidad"]
+forbidden_columns = [
+    "estado_contrato",
+    "dias_adicionados",
+    "fecha_inicio_liquidacion",
+    "fecha_fin_liquidacion",
+    "fecha_de_notificacion_de_prorrogacion",
+    "liquidacion",
+    "ultima_actualizacion",
+    "valor_amortizado",
+    "valor_facturado",
+    "valor_pagado",
+    "valor_pendiente_de_ejecucion",
+    "valor_pendiente_de_pago",
+]
+min_selected_features = 5
+
+[historical_features]
+entity_key = "nit_entidad"
+supplier_key = "supplier_code"
+qualifying_event_types = ["ADICION EN EL VALOR"]
+
+[competition_features]
+publication_time_column = "publication_at"
+# Missing publication timestamps are never treated as known-at-t0 observations.
+require_timestamp_for_pit = true
+
+[validation]
+max_feature_future_violations = 0
+max_duplicate_contract_rows = 0
+require_all_assigned_rows_labeled = true

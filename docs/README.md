@@ -5,7 +5,7 @@
 ```text
 M1 — Bronze Data Understanding & Target Feasibility   ✅ CLOSED
 M2 — Silver / Canonical Data Model                    ✅ CLOSED
-M3 — Gold / Point-in-Time Analytical Layer            ▶ READY
+M3 — Gold / Point-in-Time Analytical Layer            ▶ IN PROGRESS
 ```
 
 ## Documentos autoritativos
@@ -17,11 +17,15 @@ M3 — Gold / Point-in-Time Analytical Layer            ▶ READY
 | `decisions/M1_GATE.md` | decisión computable de cierre de M1 |
 | `M2_RUNBOOK.md` | arquitectura, ejecución y estado final de Silver/M2 |
 | `decisions/M2_GATE.md` | decisión computable de cierre de M2 |
-| `decisions/M2_CLOSURE_REVIEW_2026-09-23.md` | revisión de cierre y autorización de transición |
 | `data-dictionary/silver_m2_catalog.md` | catálogo de los 12 artefactos Silver canónicos |
-| `M3_HANDOFF.md` | contrato de entrada, deudas y reglas para Gold/M3 |
-| `target-specs/y_addition_180d.md` | especificación candidata del target; semantic freeze pendiente en M3 |
+| `M3_HANDOFF.md` | contrato de entrada desde M2 |
+| `M3_RUNBOOK.md` | orden, outputs y reglas operativas de Gold/M3 |
+| `decisions/M3_START_2026-09-23.md` | decisión de inicio y alcance de M3 V1 |
+| `decisions/M3_TEMPORAL_SPLIT_FREEZE.md` | periodos train/validation/test congelados |
+| `decisions/M3_CODE_READINESS_2026-09-23.md` | revisión estática de preparación del código M3 antes de ejecución empírica |
+| `target-specs/y_addition_180d.md` | semantic freeze del target V1 |
+| `data-dictionary/gold_m3_catalog.md` | catálogo esperado de artefactos Gold |
 
 ## Regla de precedencia
 
-Cuando una nota histórica o documento de bootstrap contradiga el estado actual, prevalecen los artefactos de gate y los documentos de handoff más recientes. Las decisiones antiguas se conservan por trazabilidad; no se reescriben para aparentar que el conocimiento actual existía en el pasado.
+Los artefactos de gate y decisiones más recientes prevalecen sobre notas históricas de bootstrap. Las decisiones antiguas se conservan por trazabilidad; no se reescriben para aparentar que el conocimiento actual existía en el pasado.
