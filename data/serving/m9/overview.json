@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "m9-serving-v1",
+  "generatedAt": "2026-09-25T18:48:39.917546+00:00",
+  "source": {
+    "batchId": "a8865bfed9374218183eb302",
+    "modelVersion": "argos-v1",
+    "modelStage": "candidate",
+    "scoringMode": "batch",
+    "dataMode": "serving-materialized",
+    "scoringRows": 529054
+  },
+  "overview": {
+    "scoredContracts": 529054,
+    "reviewQueueRows": 5291,
+    "reviewFraction": 0.01000086947646176,
+    "highCount": 5291,
+    "mediumCount": 21162,
+    "lowCount": 502601,
+    "alerts": 14,
+    "highAlerts": 6,
+    "scorePsi": 1.0891642323302304,
+    "promotionBlocked": true,
+    "blockReason": "6 high-severity monitoring alert(s)",
+    "operationalStatus": "OPERATIONALLY_READY_PROMOTION_BLOCKED"
+  },
+  "governance": {
+    "humanReviewRequired": true,
+    "productionPromotionAuthorized": false,
+    "m7Status": "ACTIVE / EVIDENCE PENDING",
+    "m7ProtocolId": "693ba0b6a2109b55dfbe7ca06ba39f8d887e88ad63f5b3d1f9fc2410b648593e",
+    "m7ProspectiveStart": "2026-09-24",
+    "m7HorizonDays": 180,
+    "m8Status": "CLOSED",
+    "m8Decision": "RESEARCH_COMPLETE_NO_PROMOTION",
+    "m8SelectedFamily": null
+  },
+  "performance": {
+    "test2025": {
+      "model": "hist_gradient_boosting+isotonic",
+      "split": "test",
+      "rows": 1050857,
+      "positives": 10983,
+      "prevalence": 0.01045146961004209,
+      "pr_auc": 0.1352500154097727,
+      "roc_auc": 0.8727454074753727,
+      "log_loss": 0.04513642810525902,
+      "brier": 0.009637963487861365,
+      "ece": 0.0028434144923894073,
+      "ranking_model": "hist_gradient_boosting+isotonic",
+      "ranking_split": "test",
+      "ranking_review_fraction": 0.01,
+      "ranking_reviewed": 10509,
+      "ranking_captured_positives": 2776,
+      "ranking_precision_at_k": 0.26415453420877344,
+      "ranking_recall_at_k": 0.2527542565783484,
+      "ranking_lift_at_k": 25.274391455433765,
+      "ranking_cumulative_gain": 0.2527542565783484
+    },
+    "oot2026": {
+      "model": "ARGOS_V1_frozen",
+      "split": "fresh_oot_2026",
+      "rows": 529054,
+      "positives": 7255,
+      "prevalence": 0.013713155934932919,
+      "pr_auc": 0.05327382904758357,
+      "roc_auc": 0.744543556792491,
+      "log_loss": 0.0657100190947075,
+      "brier": 0.013238307812089577,
+      "ece": 0.0030929985070267526,
+      "ranking_model": "ARGOS_V1_frozen",
+      "ranking_split": "fresh_oot_2026",
+      "ranking_review_fraction": 0.01,
+      "ranking_reviewed": 5291,
+      "ranking_captured_positives": 454,
+      "ranking_precision_at_k": 0.0858060858060858,
+      "ranking_recall_at_k": 0.0625775327360441,
+      "ranking_lift_at_k": 6.2572092239907535,
+      "ranking_cumulative_gain": 0.0625775327360441,
+      "ranking_tie_break": "score_desc/raw_score_desc/contract_id_asc"
+    }
+  },
+  "advanced": {
+    "decision": "RESEARCH_COMPLETE_NO_PROMOTION",
+    "baselinePrAuc": 0.06463993654257674,
+    "baselineLiftAtK": 11.829692053533309,
+    "comparisons": [
+      {
+        "feature_family": "tabular_nlp",
+        "pr_auc": 0.06588437165116698,
+        "lift_at_operational_k": 11.513797882674686,
+        "pr_auc_relative_gain": 0.019251799663673186,
+        "lift_relative_gain": -0.026703499079189563,
+        "eligible": false
+      },
+      {
+        "feature_family": "tabular_graph",
+        "pr_auc": 0.06293945336727289,
+        "lift_at_operational_k": 10.28289990657039,
+        "pr_auc_relative_gain": -0.026307005641686976,
+        "lift_relative_gain": -0.13075506445672191,
+        "eligible": false
+      },
+      {
+        "feature_family": "tabular_anomaly",
+        "pr_auc": 0.06467528882019533,
+        "lift_at_operational_k": 11.7098701266559,
+        "pr_auc_relative_gain": 0.000546910772341036,
+        "lift_relative_gain": -0.01012891344383049,
+        "eligible": false
+      },
+      {
+        "feature_family": "tabular_m8_all",
+        "pr_auc": 0.06404419282443753,
+        "lift_at_operational_k": 11.001831467834846,
+        "pr_auc_relative_gain": -0.009216341320923305,
+        "lift_relative_gain": -0.06998158379373842,
+        "eligible": false
+      }
+    ],
+    "survival": {
+      "validationCIndex": 0.7786493322847768,
+      "meanValidationBrier": 0.00830439273525396,
+      "horizons": [
+        30,
+        90,
+        180
+      ],
+      "trainEvents": 1590,
+      "validationEvents": 1429
+    }
+  },
+  "trend": [
+    {
+      "month": "2026-01",
+      "total": 498792,
+      "focus": 17415,
+      "focusPct": 3.4914353077034113,
+      "meanScore": 0.009832017143685888
+    },
+    {
+      "month": "2026-02",
+      "total": 22452,
+      "focus": 6081,
+      "focusPct": 27.084446819882416,
+      "meanScore": 0.03324266336542861
+    },
+    {
+      "month": "2026-03",
+      "total": 7810,
+      "focus": 2957,
+      "focusPct": 37.86171574903969,
+      "meanScore": 0.03956322259850437
+    }
+  ],
+  "coverage": {
+    "entityName": 1.0,
+    "supplierName": 1.0,
+    "contractObject": 1.0,
+    "department": 1.0,
+    "city": 1.0,
+    "modality": 1.0,
+    "historicalSupplier": 1.0,
+    "historicalEntity": 1.0,
+    "historicalPair": 1.0
+  },
+  "disclaimer": "ARGOS prioriza casos para revisión analítica adicional. Sus scores, anomalías y relaciones no constituyen una acusación ni una conclusión jurídica de fraude o corrupción."
+}

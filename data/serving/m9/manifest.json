@@ -1,0 +1,35 @@
+{
+  "schema_version": "m9-serving-v1",
+  "implementation": "m9-serving-read-only-v1",
+  "batch_id": "a8865bfed9374218183eb302",
+  "database": "/Users/macm1pro/Desktop/projects/argos/argos-code/data/serving/m9/argos-serving.duckdb",
+  "overview": "/Users/macm1pro/Desktop/projects/argos/argos-code/data/serving/m9/overview.json",
+  "validation": "/Users/macm1pro/Desktop/projects/argos/argos-code/reports/serving/m9_serving_validation.parquet",
+  "rows": 529054,
+  "source_paths": {
+    "scored_batch": "/Users/macm1pro/Desktop/projects/argos/argos-code/data/production/scored_batches/a8865bfed9374218183eb302.parquet",
+    "scoring_input": "/Users/macm1pro/Desktop/projects/argos/argos-code/data/m5/fresh_oot_2026.parquet",
+    "silver_contracts": "/Users/macm1pro/Desktop/projects/argos/argos-code/data/silver/contracts.parquet",
+    "silver_suppliers": "/Users/macm1pro/Desktop/projects/argos/argos-code/data/silver/suppliers.parquet"
+  },
+  "display_columns": {
+    "entity": "nombre_entidad",
+    "supplier_contract": "proveedor_adjudicado",
+    "supplier_dimension": "nombre",
+    "object": "objeto_del_contrato"
+  },
+  "coverage": {
+    "entityName": 1.0,
+    "supplierName": 1.0,
+    "contractObject": 1.0,
+    "department": 1.0,
+    "city": 1.0,
+    "modality": 1.0,
+    "historicalSupplier": 1.0,
+    "historicalEntity": 1.0,
+    "historicalPair": 1.0
+  },
+  "scientific_artifacts_mutated": false,
+  "read_only_sources": true,
+  "built_at_utc": "2026-09-25T18:48:39.935080+00:00"
+}
