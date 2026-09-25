@@ -17,6 +17,12 @@ def main() -> None:
             for index, cell in enumerate(payload.get("cells", [])):
                 if cell.get("cell_type") != "code":
                     continue
+                if cell.get("execution_count") is not None:
+                    failures.append(
+                        f"{path.name}:cell{index}: execution_count must be null"
+                    )
+                if cell.get("outputs", []):
+                    failures.append(f"{path.name}:cell{index}: outputs must be empty")
                 source = "".join(cell.get("source", []))
                 if source.strip().startswith(("%", "!")):
                     continue

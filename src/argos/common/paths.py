@@ -87,6 +87,7 @@ class ProjectPaths:
             self.gold / "splits",
             self.gold / "features",
             self.gold / "ml",
+            self.gold / "survival",
             self.root / ".cache" / "duckdb",
             self.root / "artifacts" / "models",
             self.root / "artifacts" / "models" / "m4",
@@ -94,6 +95,9 @@ class ProjectPaths:
             self.root / "data" / "m5",
             self.root / "artifacts" / "manifests",
             self.reports / "prospective",
+            self.reports / "advanced",
+            self.root / "artifacts" / "models" / "m8",
+            self.root / ".cache" / "m8",
             self.root / "artifacts" / "prospective",
             self.root / "artifacts" / "prospective" / "label_locks",
         ]:

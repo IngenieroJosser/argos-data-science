@@ -656,3 +656,25 @@ La plataforma demuestra scoring reproducible, data contracts, registry y lineage
 Por tanto, el cierre de M6 **no** modifica el problema de decisión original: ARGOS prioriza contratos para revisión analítica; no determina corrupción, fraude, culpabilidad, sanciones o elegibilidad de forma autónoma.
 
 Cualquier nueva versión del modelo deberá abrir una nueva lineage y evaluarse con evidencia temporal prospectiva. TEST 2025 y OOT 2026 permanecen consumidos para ARGOS V1.
+
+---
+
+## 27. Alcance final congelado del proyecto
+
+A partir del cierre técnico planificado en M8, ARGOS se considera completo para el siguiente alcance:
+
+- Data Engineering y arquitectura Bronze → Silver → Gold;
+- Data Quality y contracts/gates reproducibles;
+- modelado temporal y point-in-time correctness;
+- Machine Learning supervisado con baseline, boosting, calibración y ranking;
+- robustez temporal, drift, incertidumbre y explainability;
+- MLOps batch-first, registry, auditabilidad, monitoring y human review;
+- NLP semántico;
+- grafos temporales proveedor–entidad y co-participación;
+- detección contextual de anomalías;
+- análisis de supervivencia con censura administrativa y evaluación temporal;
+- validación prospectiva longitudinal de ARGOS V1 mediante M7.
+
+No son requisitos del alcance final congelado: causal inference, API FastAPI, dashboard Next.js, microservicios distribuidos o despliegue cloud real.
+
+M8 es el último milestone de implementación técnica. M7 permanece como experimento longitudinal independiente: puede seguir activo después de terminar la implementación porque su cierre depende de cohorts futuros y outcomes maduros, no de código adicional.

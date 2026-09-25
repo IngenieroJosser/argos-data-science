@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from argos.common.names import normalize_name
 from argos.config.registry import DatasetSpec
 from argos.config.silver import load_silver_spec
 from argos.silver.contracts_processes import build_contracts_processes_silver
@@ -30,14 +31,40 @@ def test_build_contracts_processes_silver_preserves_grain_and_segregates_state(
     silver = tmp_path / "data" / "silver"
     manifests = tmp_path / "artifacts" / "manifests"
 
+    spec = load_silver_spec(Path("configs/silver.toml"))
+
     contracts_path = bronze / "SECOP_II_-_Contratos_Electrónicos_20260921.csv"
-    contracts_path.write_text(
-        "ID Contrato,Proceso de Compra,Codigo Proveedor,Fecha de Firma,"
-        "Estado Contrato,Valor Pagado,Numero de Documento\n"
-        "C1,P1,S1,01/10/2022,Activo,$1.000.000,123\n"
-        "C2,P2,S2,02/15/2022,Cerrado,$2.000.000,456\n",
-        encoding="utf-8",
+    contracts_rows = pd.DataFrame(
+        [
+            {
+                "ID Contrato": "C1",
+                "Proceso de Compra": "P1",
+                "Codigo Proveedor": "S1",
+                "Fecha de Firma": "01/10/2022",
+                "Estado Contrato": "Activo",
+                "Valor Pagado": "$1.000.000",
+                "Numero de Documento": "123",
+            },
+            {
+                "ID Contrato": "C2",
+                "Proceso de Compra": "P2",
+                "Codigo Proveedor": "S2",
+                "Fecha de Firma": "02/15/2022",
+                "Estado Contrato": "Cerrado",
+                "Valor Pagado": "$2.000.000",
+                "Numero de Documento": "456",
+            },
+        ]
     )
+    # Keep this fixture aligned with the frozen Silver contract. Snapshot-state
+    # columns are part of the required Bronze schema even when a synthetic row
+    # does not need a value for every one of them.
+    existing_normalized = {normalize_name(column) for column in contracts_rows}
+    for normalized in spec.contracts.snapshot_state_columns:
+        if normalized in existing_normalized:
+            continue
+        contracts_rows[normalized.replace("_", " ").title()] = None
+    contracts_rows.to_csv(contracts_path, index=False)
 
     processes_path = bronze / "SECOP_II_-_Procesos_de_Contratación_20260921.csv"
     processes_path.write_text(
@@ -118,7 +145,6 @@ def test_build_contracts_processes_silver_preserves_grain_and_segregates_state(
         ]
     ).to_parquet(reports / "profiling" / "temporal_profile.parquet", index=False)
 
-    spec = load_silver_spec(Path("configs/silver.toml"))
     result = build_contracts_processes_silver(
         contracts_path,
         processes_path,

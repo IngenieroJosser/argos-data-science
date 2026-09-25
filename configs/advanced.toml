@@ -1,0 +1,105 @@
+# M8 Advanced Intelligence contract.
+# Develops ARGOS V2 signals while ARGOS V1/M7 remains frozen.
+
+[m8]
+schema_version = "m8-advanced-intelligence-v2"
+development_model_version = "argos-v2-dev-m8"
+base_model_version = "argos-v1"
+
+[governance]
+require_m6_closed = true
+require_m7_protocol_frozen = true
+allow_consumed_holdouts_for_selection = false
+consumed_holdout_years = [2025, 2026]
+development_splits = ["train", "validation"]
+max_future_feature_violations = 0
+human_review_required = true
+
+[nlp]
+enabled = true
+text_columns = ["objeto_del_contrato"]
+embedding_backend = "sentence_transformers"
+model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+model_revision = ""
+index_backend = "faiss"
+allow_fallback_for_gate = false
+fallback_backend = "tfidf_svd"
+min_text_chars = 8
+batch_size = 64
+neighbor_k = 20
+min_neighbors = 5
+svd_components = 192
+random_seed = 42
+
+[graph]
+enabled = true
+snapshot_frequency = "month"
+pagerank_alpha = 0.85
+pagerank_tolerance = 1e-8
+pagerank_max_iter = 100
+pagerank_refresh_months = 3
+max_bidders_per_process = 50
+publication_time_column = "publication_at"
+require_publication_timestamp = true
+
+[anomaly]
+enabled = true
+implementation = "isolation_forest"
+max_train_rows = 500000
+n_estimators = 300
+max_samples = 100000
+contamination = "auto"
+random_seed = 42
+
+[survival]
+enabled = true
+horizon_days = 180
+evaluation_horizons = [30, 90, 180]
+max_train_rows = 75000
+max_validation_rows = 150000
+min_total_events = 1000
+min_train_events = 300
+min_validation_events = 200
+l2_penalty = 0.10
+max_iter = 500
+tolerance = 1e-7
+calibration_bins = 10
+ph_diagnostic_top_k = 20
+random_seed = 42
+
+[ablation]
+max_train_rows = 350000
+max_iter = 120
+families = ["tabular", "tabular_nlp", "tabular_graph", "tabular_anomaly", "tabular_m8_all"]
+validation_role = "development_selection"
+operational_fraction = 0.01
+min_pr_auc_relative_gain = 0.0
+min_lift_relative_gain = 0.0
+
+[artifacts]
+semantic_features = "data/gold/features/m8_semantic_features.parquet"
+graph_features = "data/gold/features/m8_graph_features.parquet"
+anomaly_features = "data/gold/features/m8_anomaly_features.parquet"
+development_matrix = "data/gold/ml/argos_m8_dev.parquet"
+anomaly_model = "artifacts/models/m8/isolation_forest.joblib"
+selected_model = "artifacts/models/m8/selected_m8_challenger.joblib"
+survival_outcomes = "data/gold/survival/m8_survival_outcomes.parquet"
+survival_model = "artifacts/models/m8/cox_ph.joblib"
+semantic_manifest = "artifacts/manifests/m8_semantic.json"
+graph_manifest = "artifacts/manifests/m8_graph.json"
+anomaly_manifest = "artifacts/manifests/m8_anomaly.json"
+survival_outcomes_manifest = "artifacts/manifests/m8_survival_outcomes.json"
+survival_manifest = "artifacts/manifests/m8_survival.json"
+ablation_manifest = "artifacts/manifests/m8_ablation.json"
+pit_manifest = "artifacts/manifests/m8_pit_audit.json"
+selection_manifest = "artifacts/manifests/m8_feature_selection.json"
+
+[acceptance]
+require_semantic_backend = true
+require_graph_pit = true
+require_anomaly_train_only_fit = true
+require_temporal_ablation = true
+require_survival_analysis = true
+require_m7_hash_integrity = true
+require_no_consumed_holdout_selection = true
+require_explicit_feature_selection = true

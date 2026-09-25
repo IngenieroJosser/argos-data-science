@@ -10,7 +10,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 > Una predicción o anomalía representa una **señal analítica o prioridad de revisión**, no una acusación ni una conclusión jurídica.
 
 
-**Estado del roadmap V1:** M1–M6 `CLOSED`; **M7:** `OPEN — Prospective Validation & Operational Evaluation`.
+**Estado actual:** M1–M6 `CLOSED`; M7 `ACTIVE — Prospective Validation`; M8 `IMPLEMENTATION COMPLETE / EMPIRICAL RUN PENDING` hasta ejecutar `70–77` con el workspace real.
 
 ---
 
@@ -37,6 +37,8 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [19. Convenciones de trabajo](#19-convenciones-de-trabajo)
 - [20. Fuentes oficiales](#20-fuentes-oficiales)
 - [21. M7 — Prospective Validation & Operational Evaluation](#21-m7--prospective-validation--operational-evaluation)
+- [22. M8 — Advanced Intelligence & Survival](#22-m8--advanced-intelligence--survival)
+- [23. Alcance final y criterio de proyecto completo](#23-alcance-final-y-criterio-de-proyecto-completo)
 
 ---
 
@@ -518,7 +520,11 @@ M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED — 13/13
 M4 — Modeling & Evaluation                            ✅ CLOSED — 14/14
 M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
 M6 — Productionization & MLOps                        ✅ CLOSED — 16/16
+M7 — Prospective Validation                           ◐ ACTIVE — future evidence required
+M8 — NLP + Graph + Anomaly + Survival                 ◐ CODE COMPLETE — empirical run pending
 ```
+
+El alcance técnico final de ARGOS no exige causal inference, FastAPI, Next.js ni dashboard. M8 es el último milestone de implementación para el alcance declarado en este README. M7 permanece como experimento longitudinal independiente y solo puede cerrarse cuando existan cohorts prospectivos maduros.
 
 M4 quedó cerrado por `37_m4_gate.ipynb` con **14/14 checks bloqueantes aprobados**. El gate verificó la cadena completa `30`–`36`, presencia de reportes y manifests, consistencia de schema `m4-model-v1`, aislamiento del conjunto TEST, hashes del modelo/calibrador congelados antes de TEST y persistencia de la model card.
 
@@ -1840,7 +1846,7 @@ M1–M6 están formalmente cerrados. ARGOS entra ahora en su séptimo y último 
 
 ```text
 M7 — Prospective Validation & Operational Evaluation
-Status: OPEN / protocol initialization
+Status: ACTIVE / implementation complete / prospective evidence pending
 Schema: m7-prospective-v2
 ```
 
@@ -1871,3 +1877,59 @@ The sequence is:
 M7 no puede cerrarse inmediatamente: el target exige 180 días completos de follow-up, un buffer conservador de maduración de outcomes y múltiples cohorts genuinamente prospectivos. Un cambio de modelo motivado por M7 crea una nueva versión y requiere un nuevo holdout futuro.
 
 ARGOS permanece **batch-first, shadow y human-in-the-loop**. Ningún resultado de M7 promueve automáticamente el modelo ni convierte un risk score en una conclusión jurídica o de corrupción/fraude.
+
+---
+
+# 22. M8 — Advanced Intelligence & Survival
+
+ARGOS M8 completa el alcance técnico avanzado como una línea separada de desarrollo V2: **NLP semántico, grafos temporales, detección contextual de anomalías y análisis de supervivencia**, seguidos por auditoría PIT, ablation temporal y gate formal. No modifica la evidencia congelada de ARGOS V1/M6/M7 y no reutiliza TEST 2025 u OOT 2026 para selección.
+
+Secuencia:
+
+```text
+70 semantic NLP
+71 temporal graph intelligence
+72 contextual anomaly detection
+73 M8 development matrix + PIT audit
+74 temporal ablation
+75 survival outcomes + administrative censoring
+76 Kaplan-Meier + penalized Cox PH
+77 M8 gate
+```
+
+Con los directorios reales `data/silver` y `data/gold` presentes:
+
+```bash
+uv sync --frozen
+uv pip install -r requirements-m8.txt
+uv run --no-sync python pipelines/run_advanced_m8.py
+```
+
+La ablation utiliza la misma semilla para todas las familias. Puede cerrar con `PROMOTE_M8_FEATURES` o `RESEARCH_COMPLETE_NO_PROMOTION`; un no-promote es científicamente válido si la evidencia está completa. Survival se evalúa por separado con Kaplan–Meier, Cox PH penalizado, Harrell C-index, Brier/calibración a 30/90/180 días y diagnóstico de proportional hazards.
+
+Ver `docs/M8_RUNBOOK.md` y `docs/PROJECT_COMPLETION_AND_TESTING.md`.
+
+---
+
+# 23. Alcance final y criterio de proyecto completo
+
+El alcance final congelado de este repositorio es:
+
+```text
+Data Engineering
+Data Quality
+modelado temporal / point-in-time correctness
+Machine Learning
+MLOps
+NLP
+grafos
+detección de anomalías
+análisis de supervivencia
+validación prospectiva longitudinal
+```
+
+No son requisitos de cierre de este alcance: causal inference, API de serving, dashboard web o producto Next.js.
+
+El proyecto puede declarar **implementación técnica completa** cuando M1–M6 permanezcan cerrados y M8 produzca `M8 ✅ CLOSED`. M7 puede seguir `ACTIVE` porque su evidencia depende de tiempo calendario real; no debe cerrarse artificialmente.
+
+El proyecto puede declarar **validación longitudinal completa** únicamente cuando M7 cierre con cohorts genuinamente prospectivos y outcomes maduros bajo el protocolo congelado.

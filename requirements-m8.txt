@@ -1,0 +1,3 @@
+# Optional M8 research runtime. Kept separate from the frozen ARGOS V1 uv.lock.
+sentence-transformers>=3.0,<6
+faiss-cpu>=1.8,<2

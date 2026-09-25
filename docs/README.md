@@ -9,6 +9,8 @@ M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED
 M4 — Modeling & Evaluation                            ✅ CLOSED
 M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
 M6 — Productionization & MLOps                        ✅ CLOSED — 16/16
+M7 — Prospective Validation                           ◐ ACTIVE — future evidence required
+M8 — Advanced Intelligence & Survival                 ◐ CODE COMPLETE — empirical run pending
 ```
 
 La autoridad operativa de cada milestone es su gate persistido. Los documentos de inicio/readiness se conservan como evidencia histórica y no sustituyen las decisiones de cierre posteriores.
@@ -104,3 +106,15 @@ El status final es `OPERATIONALLY_READY_PROMOTION_BLOCKED`: la infraestructura e
 - `decisions/M7_START_2026-09-23.md` — decisión formal de inicio.
 - `decisions/M7_GATE.md` — estado vigente del gate; permanece abierto hasta madurar evidencia prospectiva.
 - `data-dictionary/m7_prospective_catalog.md` — contrato de artefactos M7.
+
+
+## M8 — Advanced Intelligence & Survival
+
+- `M8_RUNBOOK.md` — ejecución 70–77 y metodología NLP/graph/anomaly/survival.
+- `M8_HANDOFF.md` — contrato de salida del último milestone técnico.
+- `decisions/M8_START_2026-09-23.md` — alcance congelado de M8 v2.
+- `decisions/M8_CODE_READINESS_2026-09-23.md` — estado de implementación previo a la corrida empírica.
+- `data-dictionary/m8_advanced_intelligence_catalog.md` — catálogo de features y survival outcomes.
+- `PROJECT_COMPLETION_AND_TESTING.md` — procedimiento de verificación integral.
+
+M8 solo puede marcarse `CLOSED` después de ejecutar 70–77 sobre el workspace real. M7 permanece independiente y no debe cerrarse hasta disponer de cohorts futuros maduros.
