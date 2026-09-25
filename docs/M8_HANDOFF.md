@@ -28,11 +28,14 @@ Cuando `docs/decisions/M8_GATE.md` marque `M8 ✅ CLOSED`, deben existir:
 
 ## Estado posterior a M8
 
-Con el alcance actual del proyecto, **M8 es el último milestone técnico**. Después de cerrarlo:
+M8 cerró con:
 
 ```text
+M8 ✅ CLOSED — RESEARCH_COMPLETE_NO_PROMOTION
 Technical implementation: COMPLETE
 M7 prospective validation: ACTIVE until future cohorts mature
 ```
 
-No se requieren causal inference, FastAPI, Next.js o dashboard para el alcance final declarado en el README.
+El resultado `RESEARCH_COMPLETE_NO_PROMOTION` preserva ARGOS V1 como referencia gobernada: NLP, grafos y anomalías pueden exponerse como contexto analítico, pero no deben presentarse como una nueva versión promovida del modelo.
+
+La siguiente fase es **M9 — Plataforma Analítica / Frontend**. M9 es posterior al cierre científico/técnico y no modifica la evidencia M8 ni el protocolo M7. Ver `docs/M9_FRONTEND_PLAN.md`.

@@ -13,7 +13,7 @@ Este documento define cómo verificar **todo el alcance final declarado** del pr
 - análisis de supervivencia;
 - validación prospectiva M7 como experimento longitudinal.
 
-No forman parte del alcance final obligatorio: causal inference, FastAPI, Next.js o dashboard.
+No formaron parte del criterio obligatorio para cerrar la implementación científica/técnica: causal inference, FastAPI, Next.js o dashboard. Tras ese cierre, Next.js pasa a ser parte explícita de **M9 — Plataforma Analítica**, una fase de producto separada.
 
 ## 1. Preparar el entorno
 
@@ -197,3 +197,28 @@ ARGOS: COMPLETE para el alcance declarado
 ### macOS / Apple Silicon note
 
 M8 semantic closure forces Sentence Transformers to CPU, FAISS exact `IndexFlatIP`, and one native thread. This intentionally trades speed for deterministic/stable execution after native MPS/HNSW SIGSEGVs were observed during closure runs.
+
+
+## 10. Handoff posterior al cierre técnico — M9
+
+Después de verificar M8 y el QA del repositorio, el desarrollo continúa en una línea de producto independiente:
+
+```text
+M1–M6  CLOSED
+M7     ACTIVE / PROSPECTIVE EVIDENCE PENDING
+M8     CLOSED — RESEARCH_COMPLETE_NO_PROMOTION
+M9     NEXT — Analytical Platform / Frontend
+```
+
+M9 no requiere volver a ejecutar M1–M8 para iniciar el trabajo de interfaz. Debe consumir artefactos persistidos y contratos de presentación derivados de la evidencia ya gobernada.
+
+Antes de integrar cada pantalla con datos reales se debe validar:
+
+- origen y versión del artefacto;
+- semántica de cada métrica;
+- separación entre score gobernado y señal experimental;
+- ausencia de campos post-`t0` presentados como explicación causal;
+- disclaimer de priorización/revisión;
+- estado M7 visible como `ACTIVE`, no como validación concluida.
+
+Ver `docs/M9_FRONTEND_PLAN.md`.

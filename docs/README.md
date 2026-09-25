@@ -10,7 +10,8 @@ M4 — Modeling & Evaluation                            ✅ CLOSED
 M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
 M6 — Productionization & MLOps                        ✅ CLOSED — 16/16
 M7 — Prospective Validation                           ◐ ACTIVE — future evidence required
-M8 — Advanced Intelligence & Survival                 ◐ CODE COMPLETE — empirical run pending
+M8 — Advanced Intelligence & Survival                 ✅ CLOSED — RESEARCH_COMPLETE_NO_PROMOTION
+M9 — Plataforma Analítica / Frontend                  ▶ NEXT — product development
 ```
 
 La autoridad operativa de cada milestone es su gate persistido. Los documentos de inicio/readiness se conservan como evidencia histórica y no sustituyen las decisiones de cierre posteriores.
@@ -49,6 +50,9 @@ La autoridad operativa de cada milestone es su gate persistido. Los documentos d
 | `decisions/M6_CLOSURE_REVIEW_2026-09-23.md` | revisión senior, reconciliación de evidencia y estado operacional final |
 | `operations/ARGOS_V1_OPERATIONAL_RUNBOOK.md` | runbook operativo para shadow/human-review |
 | `POST_M6_OPERATIONS.md` | reglas posteriores al cierre: monitoreo prospectivo y gobernanza de nueva evidencia |
+| `decisions/M8_GATE.md` | cierre formal de M8 y decisión `RESEARCH_COMPLETE_NO_PROMOTION` |
+| `M9_FRONTEND_PLAN.md` | contrato de producto, arquitectura UX y criterios de aceptación del frontend |
+| `decisions/M9_START_2026-09-25.md` | decisión formal de inicio de M9 sin alterar M7/M8 |
 
 ## Evidencia histórica preservada
 
@@ -117,4 +121,12 @@ El status final es `OPERATIONALLY_READY_PROMOTION_BLOCKED`: la infraestructura e
 - `data-dictionary/m8_advanced_intelligence_catalog.md` — catálogo de features y survival outcomes.
 - `PROJECT_COMPLETION_AND_TESTING.md` — procedimiento de verificación integral.
 
-M8 solo puede marcarse `CLOSED` después de ejecutar 70–77 sobre el workspace real. M7 permanece independiente y no debe cerrarse hasta disponer de cohorts futuros maduros.
+M8 cerró formalmente con `RESEARCH_COMPLETE_NO_PROMOTION`: la investigación avanzada está completa y ninguna familia experimental fue promovida. M7 permanece independiente y activo hasta disponer de cohorts futuros maduros.
+
+
+## M9 — Plataforma Analítica / Frontend
+
+- `M9_FRONTEND_PLAN.md` — visión de producto, arquitectura, pantallas, contrato de presentación y criterios de aceptación.
+- `decisions/M9_START_2026-09-25.md` — inicio formal de la fase de frontend.
+
+M9 es una capa de producto **read-only, batch-first y human-in-the-loop** sobre la evidencia gobernada. No reentrena modelos, no reabre TEST/OOT y no modifica el protocolo prospectivo M7.

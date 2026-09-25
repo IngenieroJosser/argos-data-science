@@ -644,7 +644,7 @@ M5 cerró con 16/16 checks bloqueantes y conserva ARGOS V1 como benchmark histó
 
 El fresh OOT 2026 obtuvo PR-AUC 0.053274 y Lift@1% 6.257x sobre una prevalencia de 1.3713%. Existe generalización útil, pero con degradación frente a TEST 2025 y con cobertura parcial del año.
 
-La fase activa, M6, corresponde a productionization/MLOps: operacionalizar pipelines, serving, registry, observabilidad, monitoreo, rollback y auditoría. ARGOS continúa siendo una ayuda para priorización y revisión humana; no se redefine como sistema autónomo de sanción, elegibilidad o decisión legal.
+En ese punto histórico, la fase siguiente fue M6 (productionization/MLOps): operacionalizar pipelines, serving, registry, observabilidad, monitoreo, rollback y auditoría. M6 ya se encuentra cerrado. ARGOS continúa siendo una ayuda para priorización y revisión humana; no se redefine como sistema autónomo de sanción, elegibilidad o decisión legal.
 
 
 ## 22. Estado operacional V1 tras M6
@@ -675,6 +675,18 @@ A partir del cierre técnico planificado en M8, ARGOS se considera completo para
 - análisis de supervivencia con censura administrativa y evaluación temporal;
 - validación prospectiva longitudinal de ARGOS V1 mediante M7.
 
-No son requisitos del alcance final congelado: causal inference, API FastAPI, dashboard Next.js, microservicios distribuidos o despliegue cloud real.
+No fueron requisitos para cerrar el alcance científico/técnico: causal inference, API FastAPI, dashboard Next.js, microservicios distribuidos o despliegue cloud real.
 
-M8 es el último milestone de implementación técnica. M7 permanece como experimento longitudinal independiente: puede seguir activo después de terminar la implementación porque su cierre depende de cohorts futuros y outcomes maduros, no de código adicional.
+M8 fue el último milestone de implementación científica/técnica y cerró con `RESEARCH_COMPLETE_NO_PROMOTION`. M7 permanece como experimento longitudinal independiente: puede seguir activo porque su cierre depende de cohorts futuros y outcomes maduros, no de código adicional.
+
+### 27.1 Fase posterior: M9 — Plataforma Analítica
+
+Después del cierre técnico se abre una fase de producto separada. M9 construirá el frontend de ARGOS como **plataforma de inteligencia analítica para priorización de riesgo en contratación pública**.
+
+Esta capa de producto no cambia la pregunta científica ni redefine el target. Su función es hacer navegables y trazables los outputs gobernados para analistas humanos. Debe preservar tres distinciones:
+
+1. **score/prioridad gobernada** de ARGOS V1;
+2. **señales complementarias o experimentales** de M8, sin promoción;
+3. **estado prospectivo M7**, explícitamente marcado como activo hasta disponer de evidencia madura.
+
+El frontend no debe etiquetar corrupción, fraude, culpabilidad o ilegalidad. Una señal representa prioridad analítica para revisión adicional.

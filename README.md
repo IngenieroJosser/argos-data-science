@@ -10,7 +10,7 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 > Una predicción o anomalía representa una **señal analítica o prioridad de revisión**, no una acusación ni una conclusión jurídica.
 
 
-**Estado actual:** M1–M6 `CLOSED`; M7 `ACTIVE — Prospective Validation`; M8 `IMPLEMENTATION COMPLETE / EMPIRICAL RUN PENDING` hasta ejecutar `70–77` con el workspace real.
+**Estado actual:** M1–M6 `CLOSED`; M7 `ACTIVE — EVIDENCE PENDING`; M8 `CLOSED — RESEARCH_COMPLETE_NO_PROMOTION`; implementación técnica `COMPLETE`. La siguiente fase es **M9 — Plataforma Analítica**, enfocada en el frontend profesional de ARGOS sin alterar el protocolo prospectivo de M7.
 
 ---
 
@@ -38,7 +38,8 @@ El proyecto está diseñado como un ejercicio de nivel profesional que integra *
 - [20. Fuentes oficiales](#20-fuentes-oficiales)
 - [21. M7 — Prospective Validation & Operational Evaluation](#21-m7--prospective-validation--operational-evaluation)
 - [22. M8 — Advanced Intelligence & Survival](#22-m8--advanced-intelligence--survival)
-- [23. Alcance final y criterio de proyecto completo](#23-alcance-final-y-criterio-de-proyecto-completo)
+- [23. Cierre técnico y estado científico](#23-cierre-técnico-y-estado-científico)
+- [24. M9 — Plataforma Analítica / Frontend](#24-m9--plataforma-analítica--frontend)
 
 ---
 
@@ -504,11 +505,13 @@ argos-code/
 
 # 8. Estado actual del proyecto
 
-ARGOS completó formalmente el ciclo V1 de ingeniería analítica y operacional. M6 cerró la productivización controlada con un contrato batch-first, shadow y human-in-the-loop. El sistema está **operacionalmente listo**, pero la promoción permanece bloqueada por señales de drift de alta severidad:
+ARGOS completó formalmente su implementación científica/técnica y la operacionalización batch-first, shadow y human-in-the-loop. El sistema conserva el estado operativo de M6 `OPERATIONALLY_READY_PROMOTION_BLOCKED`, mientras la evidencia longitudinal se acumula en M7. M8 cerró la investigación avanzada sin promover una nueva familia de features.
 
 ```text
-M6 — Productionization & MLOps   ✅ CLOSED — 16/16
-Operational status               OPERATIONALLY_READY_PROMOTION_BLOCKED
+M6 operational status            OPERATIONALLY_READY_PROMOTION_BLOCKED
+M8 research decision             RESEARCH_COMPLETE_NO_PROMOTION
+Technical implementation         COMPLETE
+Prospective validation           ACTIVE
 ```
 
 Estado de milestones:
@@ -520,11 +523,12 @@ M3 — Gold / Point-in-Time Analytical Layer            ✅ CLOSED — 13/13
 M4 — Modeling & Evaluation                            ✅ CLOSED — 14/14
 M5 — Advanced Data Science & Robustness               ✅ CLOSED — 16/16
 M6 — Productionization & MLOps                        ✅ CLOSED — 16/16
-M7 — Prospective Validation                           ◐ ACTIVE — future evidence required
-M8 — NLP + Graph + Anomaly + Survival                 ◐ CODE COMPLETE — empirical run pending
+M7 — Prospective Validation                           ◐ ACTIVE — evidence pending
+M8 — NLP + Graph + Anomaly + Survival                 ✅ CLOSED — NO PROMOTION
+M9 — Plataforma Analítica / Frontend                  ▶ NEXT
 ```
 
-El alcance técnico final de ARGOS no exige causal inference, FastAPI, Next.js ni dashboard. M8 es el último milestone de implementación para el alcance declarado en este README. M7 permanece como experimento longitudinal independiente y solo puede cerrarse cuando existan cohorts prospectivos maduros.
+M7 permanece como experimento longitudinal independiente y solo puede cerrarse cuando existan cohorts prospectivos maduros. El desarrollo de producto continúa en M9 sin alterar el protocolo de M7, sin reabrir TEST/OOT y sin modificar la decisión de M8.
 
 M4 quedó cerrado por `37_m4_gate.ipynb` con **14/14 checks bloqueantes aprobados**. El gate verificó la cadena completa `30`–`36`, presencia de reportes y manifests, consistencia de schema `m4-model-v1`, aislamiento del conjunto TEST, hashes del modelo/calibrador congelados antes de TEST y persistencia de la model card.
 
@@ -1531,12 +1535,46 @@ M6 cierra la infraestructura operacional V1, pero **no levanta el bloqueo de pro
 
 ## M7 — Prospective Validation & Operational Evaluation
 
-**Estado:** ⏳ OPEN — protocolo prospectivo inicializado.
+**Estado:** ◐ ACTIVE — implementación completa / evidencia prospectiva pendiente.
 
-M7 evalúa el sistema V1 congelado sobre evidencia que todavía no existía al momento de cerrar M6. Requiere batches posteriores al freeze, outcomes maduros a 180 días, evidencia de revisión humana, monitoring longitudinal y una decisión operacional gobernada.
+M7 evalúa ARGOS V1 congelado sobre cohorts genuinamente posteriores al freeze. El protocolo está íntegro y no debe cerrarse con evidencia retrospectiva ya consumida. Su cierre depende de outcomes maduros a 180 días, reporting lag, múltiples cohorts prospectivos, evidencia de revisión humana y monitoring longitudinal.
 
-Autoridad de inicio: `docs/decisions/M7_START_2026-09-23.md`. Protocolo: `docs/M7_RUNBOOK.md`.
+Autoridad: `docs/decisions/M7_GATE.md`. Protocolo: `docs/M7_RUNBOOK.md`.
 
+---
+
+## M8 — Advanced Intelligence & Survival
+
+**Estado:** ✅ CLOSED — `RESEARCH_COMPLETE_NO_PROMOTION`.
+
+M8 completó NLP semántico, grafos temporales, detección contextual de anomalías, ablation temporal y análisis de supervivencia. La investigación avanzada cerró sin promover una nueva familia de features: el resultado `NO_PROMOTION` es una conclusión experimental válida y conserva ARGOS V1 como referencia gobernada.
+
+M8 no reabre TEST 2025 ni OOT 2026 y no modifica M7. Autoridad: `docs/decisions/M8_GATE.md`.
+
+---
+
+## M9 — Plataforma Analítica / Frontend
+
+**Estado:** ▶ NEXT — desarrollo de producto.
+
+M9 transforma los artefactos científicos y operativos de ARGOS en una interfaz profesional para exploración, priorización, trazabilidad y revisión humana. Se construirá como una capa de presentación separada del pipeline de Ciencia de Datos.
+
+Objetivos principales:
+
+```text
+Next.js + TypeScript
+UX analítica y responsive
+ranking de contratos
+contract / supplier / entity intelligence
+explicación de señales
+exploración de grafos
+anomalías y contexto temporal
+survival / evolución temporal
+monitoring y gobernanza
+estado explícito de M7
+```
+
+M9 **no recalcula ni reentrena modelos en el navegador**, no promueve señales M8 descartadas y no convierte scores en acusaciones. El contrato detallado está en `docs/M9_FRONTEND_PLAN.md`.
 
 # 18. Riesgos metodológicos
 
@@ -1911,25 +1949,74 @@ Ver `docs/M8_RUNBOOK.md` y `docs/PROJECT_COMPLETION_AND_TESTING.md`.
 
 ---
 
-# 23. Alcance final y criterio de proyecto completo
+# 23. Cierre técnico y estado científico
 
-El alcance final congelado de este repositorio es:
+El alcance científico/técnico definido para ARGOS está implementado y verificado:
 
 ```text
-Data Engineering
-Data Quality
-modelado temporal / point-in-time correctness
-Machine Learning
-MLOps
-NLP
-grafos
-detección de anomalías
-análisis de supervivencia
-validación prospectiva longitudinal
+M1–M6  ✅ CLOSED
+M7     ◐ ACTIVE / EVIDENCE PENDING
+M8     ✅ CLOSED — RESEARCH_COMPLETE_NO_PROMOTION
+
+Technical implementation evidence: COMPLETE
+Prospective validation: ACTIVE
 ```
 
-No son requisitos de cierre de este alcance: causal inference, API de serving, dashboard web o producto Next.js.
+El cierre de M8 completa la implementación de Data Engineering, Data Quality, point-in-time correctness, Machine Learning, MLOps, NLP, grafos, detección de anomalías y supervivencia. El resultado `RESEARCH_COMPLETE_NO_PROMOTION` indica que las familias avanzadas fueron evaluadas rigurosamente pero no justificaron promoción bajo el protocolo congelado.
 
-El proyecto puede declarar **implementación técnica completa** cuando M1–M6 permanezcan cerrados y M8 produzca `M8 ✅ CLOSED`. M7 puede seguir `ACTIVE` porque su evidencia depende de tiempo calendario real; no debe cerrarse artificialmente.
+M7 permanece abierto por diseño. No representa deuda de código: representa una validación longitudinal que necesita cohorts futuros y outcomes maduros. Por tanto, el estado científicamente correcto es:
 
-El proyecto puede declarar **validación longitudinal completa** únicamente cuando M7 cierre con cohorts genuinamente prospectivos y outcomes maduros bajo el protocolo congelado.
+> **Implementación técnica completa; validación prospectiva en curso.**
+
+El desarrollo de producto puede continuar sin modificar M7.
+
+---
+
+# 24. M9 — Plataforma Analítica / Frontend
+
+La siguiente fase de ARGOS es construir una **plataforma de inteligencia analítica para priorización de riesgo en contratación pública**. El frontend debe convertir la evidencia ya gobernada en una experiencia de análisis y revisión humana, no en un sistema autónomo de acusación.
+
+## Arquitectura objetivo
+
+```text
+SECOP II / artefactos gobernados
+        ↓
+ARGOS Data Science + MLOps
+        ↓
+Gold / scoring / monitoring / manifests
+        ↓
+contrato de presentación M9
+        ↓
+Next.js + TypeScript
+        ↓
+analista / revisor humano
+```
+
+La primera versión será **read-only y batch-first**. El frontend consumirá snapshots derivados de artefactos gobernados; no ejecutará entrenamiento, tuning ni inferencia experimental desde el cliente.
+
+## Superficies previstas
+
+```text
+Overview ejecutivo
+Prioridad de revisión / ranking
+Contract Intelligence
+Supplier Intelligence
+Entity Intelligence
+Network / Graph Explorer
+Anomaly Explorer
+Survival / temporal intelligence
+Model & Data Monitoring
+Methodology / Governance
+```
+
+## Reglas no negociables
+
+- mostrar **prioridad de revisión**, no “probabilidad de corrupción”;
+- distinguir score gobernado de señales experimentales M8;
+- mostrar el estado `M7 ACTIVE` sin presentarlo como validación prospectiva concluida;
+- preservar `t0`, lineage, versión de modelo y fecha de scoring cuando estén disponibles;
+- mantener visible el disclaimer analítico/jurídico;
+- no consumir TEST/OOT para selección desde la capa de producto;
+- no modificar artefactos científicos desde el frontend.
+
+Plan y criterios de aceptación: `docs/M9_FRONTEND_PLAN.md`. Decisión de inicio: `docs/decisions/M9_START_2026-09-25.md`.
